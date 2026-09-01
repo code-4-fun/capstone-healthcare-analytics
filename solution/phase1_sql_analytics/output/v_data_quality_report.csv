@@ -1,0 +1,13 @@
+check_name,severity,table_scope,records_flagged,records_total,pct_flagged,description
+paid_missing_approved_amount,ERROR,billing,817,14940,5.47,Paid claims with no approved_amount
+visits_without_billing,ERROR,visits,0,25000,0.0,Visits with no billing record (expected 1:1)
+rejected_with_positive_approved,ERROR,billing,0,3797,0.0,Rejected claims that nonetheless carry an approved_amount
+approved_exceeds_billed,ERROR,billing,0,25000,0.0,approved_amount greater than billed_amount
+billing_before_visit,WARN,billing + visits,12389,25000,49.56,billing_date precedes visit_date
+visit_before_registration,WARN,visits + patients,12157,25000,48.63,visit_date precedes patient registration_date -> registration_date is not a reliable temporal anchor
+paid_missing_payment_days,WARN,billing,459,14940,3.07,Paid claims with no payment_days
+los_at_floor_0_5h,WARN,visits,300,25000,1.2,Length of stay exactly 0.5h -> likely a clipped / censored minimum
+billed_at_floor_500,WARN,billing,243,25000,0.97,billed_amount exactly 500 -> likely a floor value
+pending_with_approved_amount,INFO,billing,5962,6263,95.19,Pending claims that already carry an approved_amount
+approved_amount_missing_any,INFO,billing,1318,25000,5.27,Billing rows with a NULL approved_amount (any status)
+patients_without_visits,INFO,patients,33,5000,0.66,Registered patients with zero visits
