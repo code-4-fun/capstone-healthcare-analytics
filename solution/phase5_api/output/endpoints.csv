@@ -1,0 +1,5 @@
+method,route,purpose
+GET,/health,"Model + database readiness, uptime"
+GET,/model-info,"Versions, feature counts, thresholds, categorical domains"
+POST,/predict/claim-outcome,Model B - pre-submission claim outcome + review/submit decision
+POST,/predict/visit-risk,Model A - visit risk (calibrated base-rate monitor)

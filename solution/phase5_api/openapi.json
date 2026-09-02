@@ -1,0 +1,938 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Hospital Operations & Revenue Risk Intelligence API",
+    "description": "Prediction services for the Hospital Operations & Revenue Risk Intelligence Platform.\n\n* **POST `/predict/claim-outcome`** - Model B. Flags a claim for pre-submission\n  review when calibrated `P(Rejected)` clears the Phase 4 operating threshold.\n* **POST `/predict/visit-risk`** - Model A. A calibrated **base-rate monitor**\n  (no signal above the class prior on the pilot year); use it to track risk-mix\n  drift, not to prioritise an individual visit.\n* **GET `/model-info`** - versions, feature counts, thresholds, domains.\n* **GET `/health`** - model + database readiness.\n\nEvery response carries `model_version` / `feature_spec_version`; every prediction\nis appended to `capstone_solution.prediction_log`.\n",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "ops"
+        ],
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/model-info": {
+      "get": {
+        "tags": [
+          "ops"
+        ],
+        "summary": "Model Info",
+        "operationId": "model_info_model_info_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict/claim-outcome": {
+      "post": {
+        "tags": [
+          "predict"
+        ],
+        "summary": "Model B - pre-submission claim outcome",
+        "operationId": "predict_claim_outcome_predict_claim_outcome_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimOutcomeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimOutcomeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict/visit-risk": {
+      "post": {
+        "tags": [
+          "predict"
+        ],
+        "summary": "Model A - visit risk (base-rate monitor)",
+        "operationId": "predict_visit_risk_predict_visit_risk_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitRiskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitRiskResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "City": {
+        "type": "string",
+        "enum": [
+          "Bangalore",
+          "Chennai",
+          "Delhi",
+          "Hyderabad",
+          "Mumbai",
+          "Pune"
+        ],
+        "title": "City"
+      },
+      "ClaimDecision": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "review",
+              "submit"
+            ],
+            "title": "Action"
+          },
+          "flagged_for_review": {
+            "type": "boolean",
+            "title": "Flagged For Review"
+          },
+          "p_rejected": {
+            "type": "number",
+            "title": "P Rejected"
+          },
+          "threshold": {
+            "type": "number",
+            "title": "Threshold"
+          },
+          "threshold_version": {
+            "type": "string",
+            "title": "Threshold Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "action",
+          "flagged_for_review",
+          "p_rejected",
+          "threshold",
+          "threshold_version"
+        ],
+        "title": "ClaimDecision"
+      },
+      "ClaimOutcomeRequest": {
+        "properties": {
+          "prior_visit_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prior Visit Count",
+            "description": "Patient's earlier visits, as of visit_date."
+          },
+          "prior_high_risk_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prior High Risk Count",
+            "description": "Patient's earlier High-risk visits."
+          },
+          "prior_rejection_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prior Rejection Count",
+            "description": "Patient's earlier Rejected claims."
+          },
+          "prior_rejection_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prior Rejection Rate",
+            "description": "prior_rejection_count / prior_visit_count."
+          },
+          "days_since_last_visit": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Days Since Last Visit",
+            "description": "Days since the patient's previous visit."
+          },
+          "doctor_load_30d": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doctor Load 30D",
+            "description": "Attending doctor's other visits in the prior 30 days."
+          },
+          "provider_prior_claim_count": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Prior Claim Count",
+            "description": "Insurer's earlier claims, as of visit_date."
+          },
+          "provider_prior_rejection_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Prior Rejection Rate",
+            "description": "Insurer's historical rejection rate."
+          },
+          "visit_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Visit Date",
+            "description": "Date of the visit - the only trusted temporal key."
+          },
+          "department": {
+            "$ref": "#/components/schemas/Department"
+          },
+          "visit_type": {
+            "$ref": "#/components/schemas/VisitType"
+          },
+          "age": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 0.0,
+            "title": "Age"
+          },
+          "gender": {
+            "$ref": "#/components/schemas/Gender"
+          },
+          "city": {
+            "$ref": "#/components/schemas/City"
+          },
+          "insurance_provider": {
+            "$ref": "#/components/schemas/InsuranceProvider"
+          },
+          "chronic_flag": {
+            "type": "boolean",
+            "title": "Chronic Flag",
+            "description": "1 if the patient is flagged chronic."
+          },
+          "billed_amount": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Billed Amount",
+            "description": "Amount billed on the claim."
+          },
+          "length_of_stay_hours": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Length Of Stay Hours",
+            "description": "Recorded length of stay (floored at 0.5h in source)."
+          },
+          "risk_score": {
+            "$ref": "#/components/schemas/RiskScore",
+            "description": "Clinical risk band assigned at the visit (pre-submission input)."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "visit_date",
+          "department",
+          "visit_type",
+          "age",
+          "gender",
+          "city",
+          "insurance_provider",
+          "chronic_flag",
+          "billed_amount",
+          "length_of_stay_hours",
+          "risk_score"
+        ],
+        "title": "ClaimOutcomeRequest",
+        "description": "Model B input. Everything knowable before the claim is submitted."
+      },
+      "ClaimOutcomeResponse": {
+        "properties": {
+          "model": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B"
+            ],
+            "title": "Model"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "feature_spec_version": {
+            "type": "integer",
+            "title": "Feature Spec Version"
+          },
+          "predicted_class": {
+            "type": "string",
+            "title": "Predicted Class"
+          },
+          "probabilities": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Probabilities"
+          },
+          "defaults_applied": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Defaults Applied"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "latency_ms": {
+            "type": "number",
+            "title": "Latency Ms"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/ClaimDecision"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model",
+          "model_version",
+          "feature_spec_version",
+          "predicted_class",
+          "probabilities",
+          "defaults_applied",
+          "request_id",
+          "latency_ms",
+          "decision"
+        ],
+        "title": "ClaimOutcomeResponse"
+      },
+      "Department": {
+        "type": "string",
+        "enum": [
+          "Cardiology",
+          "ER",
+          "General",
+          "ICU",
+          "Neurology",
+          "Orthopedics"
+        ],
+        "title": "Department"
+      },
+      "Gender": {
+        "type": "string",
+        "enum": [
+          "F",
+          "M"
+        ],
+        "title": "Gender"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "degraded"
+            ],
+            "title": "Status"
+          },
+          "models_loaded": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Models Loaded"
+          },
+          "db_reachable": {
+            "type": "boolean",
+            "title": "Db Reachable"
+          },
+          "serving_version": {
+            "type": "string",
+            "title": "Serving Version"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "uptime_seconds": {
+            "type": "number",
+            "title": "Uptime Seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "models_loaded",
+          "db_reachable",
+          "serving_version",
+          "model_version",
+          "uptime_seconds"
+        ],
+        "title": "HealthResponse"
+      },
+      "InsuranceProvider": {
+        "type": "string",
+        "enum": [
+          "CareOne",
+          "HealthPlus",
+          "MediCareX",
+          "SecureLife"
+        ],
+        "title": "InsuranceProvider"
+      },
+      "ModelInfoResponse": {
+        "properties": {
+          "serving_version": {
+            "type": "string",
+            "title": "Serving Version"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "feature_spec_version": {
+            "type": "integer",
+            "title": "Feature Spec Version"
+          },
+          "temporal_key": {
+            "type": "string",
+            "title": "Temporal Key"
+          },
+          "data_window": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data Window"
+          },
+          "generated": {
+            "type": "string",
+            "title": "Generated"
+          },
+          "categorical_domains": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Categorical Domains"
+          },
+          "models": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ModelSummary"
+            },
+            "type": "object",
+            "title": "Models"
+          }
+        },
+        "type": "object",
+        "required": [
+          "serving_version",
+          "model_version",
+          "feature_spec_version",
+          "temporal_key",
+          "data_window",
+          "generated",
+          "categorical_domains",
+          "models"
+        ],
+        "title": "ModelInfoResponse"
+      },
+      "ModelSummary": {
+        "properties": {
+          "target": {
+            "type": "string",
+            "title": "Target"
+          },
+          "classes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Classes"
+          },
+          "n_features": {
+            "type": "integer",
+            "title": "N Features"
+          },
+          "chosen_estimator": {
+            "type": "string",
+            "title": "Chosen Estimator"
+          },
+          "calibration_method": {
+            "type": "string",
+            "title": "Calibration Method"
+          },
+          "operating_threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operating Threshold"
+          },
+          "threshold_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold Version"
+          },
+          "threshold_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold Basis"
+          },
+          "monitor_only": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monitor Only"
+          },
+          "monitor_notice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monitor Notice"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target",
+          "classes",
+          "n_features",
+          "chosen_estimator",
+          "calibration_method"
+        ],
+        "title": "ModelSummary"
+      },
+      "RiskScore": {
+        "type": "string",
+        "enum": [
+          "Low",
+          "Medium",
+          "High"
+        ],
+        "title": "RiskScore"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VisitRiskRequest": {
+        "properties": {
+          "prior_visit_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prior Visit Count",
+            "description": "Patient's earlier visits, as of visit_date."
+          },
+          "prior_high_risk_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prior High Risk Count",
+            "description": "Patient's earlier High-risk visits."
+          },
+          "prior_rejection_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prior Rejection Count",
+            "description": "Patient's earlier Rejected claims."
+          },
+          "prior_rejection_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prior Rejection Rate",
+            "description": "prior_rejection_count / prior_visit_count."
+          },
+          "days_since_last_visit": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Days Since Last Visit",
+            "description": "Days since the patient's previous visit."
+          },
+          "doctor_load_30d": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doctor Load 30D",
+            "description": "Attending doctor's other visits in the prior 30 days."
+          },
+          "provider_prior_claim_count": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Prior Claim Count",
+            "description": "Insurer's earlier claims, as of visit_date."
+          },
+          "provider_prior_rejection_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Prior Rejection Rate",
+            "description": "Insurer's historical rejection rate."
+          },
+          "visit_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Visit Date",
+            "description": "Date of the visit - the only trusted temporal key."
+          },
+          "department": {
+            "$ref": "#/components/schemas/Department"
+          },
+          "visit_type": {
+            "$ref": "#/components/schemas/VisitType"
+          },
+          "age": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 0.0,
+            "title": "Age"
+          },
+          "gender": {
+            "$ref": "#/components/schemas/Gender"
+          },
+          "city": {
+            "$ref": "#/components/schemas/City"
+          },
+          "insurance_provider": {
+            "$ref": "#/components/schemas/InsuranceProvider"
+          },
+          "chronic_flag": {
+            "type": "boolean",
+            "title": "Chronic Flag",
+            "description": "1 if the patient is flagged chronic."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "visit_date",
+          "department",
+          "visit_type",
+          "age",
+          "gender",
+          "city",
+          "insurance_provider",
+          "chronic_flag"
+        ],
+        "title": "VisitRiskRequest",
+        "description": "Model A input. Operational + clinical + patient-history only - no billing\nor LOS field (leakage register: excluded for Model A)."
+      },
+      "VisitRiskResponse": {
+        "properties": {
+          "model": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B"
+            ],
+            "title": "Model"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "feature_spec_version": {
+            "type": "integer",
+            "title": "Feature Spec Version"
+          },
+          "predicted_class": {
+            "type": "string",
+            "title": "Predicted Class"
+          },
+          "probabilities": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Probabilities"
+          },
+          "defaults_applied": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Defaults Applied"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "latency_ms": {
+            "type": "number",
+            "title": "Latency Ms"
+          },
+          "monitor_notice": {
+            "type": "string",
+            "title": "Monitor Notice"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model",
+          "model_version",
+          "feature_spec_version",
+          "predicted_class",
+          "probabilities",
+          "defaults_applied",
+          "request_id",
+          "latency_ms",
+          "monitor_notice"
+        ],
+        "title": "VisitRiskResponse"
+      },
+      "VisitType": {
+        "type": "string",
+        "enum": [
+          "ER",
+          "ICU",
+          "OPD"
+        ],
+        "title": "VisitType"
+      }
+    }
+  }
+}

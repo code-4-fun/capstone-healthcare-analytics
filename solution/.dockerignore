@@ -1,0 +1,22 @@
+# Build context is solution/. Keep the image lean - only src/, the Phase 3
+# model artefacts, the Phase 2 feature frame and phase5_api/ are COPYed in.
+.venv/
+**/__pycache__/
+**/*.pyc
+.git/
+.env
+**/.ipynb_checkpoints/
+**/.DS_Store
+
+# other phases' bulky generated outputs (not needed by the API)
+phase1_sql_analytics/output/
+phase2_eda/output/
+phase3_models/output/
+phase4_eval/output/
+phase5_api/output/
+**/*.ipynb
+final_presentation/
+docs/
+
+# ...but the API does need the Phase 2 feature frame (threshold rebuild + tests)
+!phase2_eda/output/feature_frame.parquet

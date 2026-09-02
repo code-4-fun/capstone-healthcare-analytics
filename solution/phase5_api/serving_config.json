@@ -1,0 +1,138 @@
+{
+  "serving_version": "1.0.0",
+  "model_version": "1.0.0",
+  "feature_spec_version": 2,
+  "generated": "2026-09-02T22:43:15+00:00",
+  "temporal_key": "visit_date",
+  "data_window": {
+    "start": "2025-01-20",
+    "end": "2026-01-20",
+    "rows": 25000,
+    "split": "9 months train / 1 validate / 2 test, calendar-anchored on visit_date"
+  },
+  "categorical_domains": {
+    "department": [
+      "Cardiology",
+      "ER",
+      "General",
+      "ICU",
+      "Neurology",
+      "Orthopedics"
+    ],
+    "visit_type": [
+      "ER",
+      "ICU",
+      "OPD"
+    ],
+    "gender": [
+      "F",
+      "M"
+    ],
+    "city": [
+      "Bangalore",
+      "Chennai",
+      "Delhi",
+      "Hyderabad",
+      "Mumbai",
+      "Pune"
+    ],
+    "insurance_provider": [
+      "CareOne",
+      "HealthPlus",
+      "MediCareX",
+      "SecureLife"
+    ],
+    "risk_score": [
+      "Low",
+      "Medium",
+      "High"
+    ]
+  },
+  "models": {
+    "A": {
+      "target": "risk_score",
+      "classes": [
+        "Low",
+        "Medium",
+        "High"
+      ],
+      "numeric_features": [
+        "prior_visit_count",
+        "prior_high_risk_count",
+        "prior_rejection_count",
+        "days_since_last_visit",
+        "prior_rejection_rate",
+        "age",
+        "chronic_flag",
+        "doctor_load_30d",
+        "provider_prior_claim_count",
+        "provider_prior_rejection_rate",
+        "month",
+        "day_of_week",
+        "week_of_year"
+      ],
+      "categorical_features": [
+        "is_first_visit",
+        "has_prior_visit",
+        "department",
+        "visit_type",
+        "age_band",
+        "gender",
+        "city",
+        "insurance_provider",
+        "is_weekend"
+      ],
+      "chosen_estimator": "majority",
+      "calibration_method": "sigmoid",
+      "monitor_only": true,
+      "monitor_notice": "Model A is a calibrated base-rate monitor, not a per-visit predictor. It has no signal above the class prior on the pilot year (Phase 2 mutual-information screen, Phase 3 model selection) and predicts 'Low' for every visit. Use it only to track the risk-mix distribution over time; do not use its output to prioritise or staff an individual visit. See phase4_eval/model_card_A.md."
+    },
+    "B": {
+      "target": "claim_status",
+      "classes": [
+        "Paid",
+        "Pending",
+        "Rejected"
+      ],
+      "numeric_features": [
+        "prior_visit_count",
+        "prior_high_risk_count",
+        "prior_rejection_count",
+        "days_since_last_visit",
+        "prior_rejection_rate",
+        "age",
+        "chronic_flag",
+        "doctor_load_30d",
+        "length_of_stay_hours",
+        "billed_amount",
+        "log_billed_amount",
+        "provider_prior_claim_count",
+        "provider_prior_rejection_rate",
+        "month",
+        "day_of_week",
+        "week_of_year"
+      ],
+      "categorical_features": [
+        "is_first_visit",
+        "has_prior_visit",
+        "department",
+        "visit_type",
+        "age_band",
+        "gender",
+        "city",
+        "los_at_floor",
+        "risk_score",
+        "billed_band",
+        "billed_at_floor",
+        "insurance_provider",
+        "is_weekend"
+      ],
+      "chosen_estimator": "gbm",
+      "calibration_method": "sigmoid",
+      "operating_threshold": 0.19,
+      "threshold_version": "1.0.0",
+      "threshold_basis": "calibrated P(Rejected) cut-off maximising net recoverable denial leakage on the validation month (Rs. 1,500/review, 40% of a caught rejection recoverable); Phase 4",
+      "threshold_source": "rederived"
+    }
+  }
+}

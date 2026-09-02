@@ -1,0 +1,1288 @@
+{
+  "model": "B",
+  "source": "phase3_models/output/model_b_test_predictions.csv",
+  "model_version": "1.0.0",
+  "n": 40,
+  "cases": [
+    {
+      "visit_id": 247,
+      "payload": {
+        "visit_date": "2026-01-18",
+        "department": "Neurology",
+        "visit_type": "OPD",
+        "age": 69,
+        "gender": "M",
+        "city": "Delhi",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": true,
+        "prior_visit_count": 4,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 122.0,
+        "doctor_load_30d": 25,
+        "provider_prior_claim_count": 5921.0,
+        "provider_prior_rejection_rate": 0.15706806282722513,
+        "billed_amount": 2105.98,
+        "length_of_stay_hours": 37.75,
+        "risk_score": "Medium"
+      },
+      "expected": {
+        "predicted_class": "Pending",
+        "probabilities": {
+          "Paid": 0.6992450691716474,
+          "Pending": 0.2607985228680785,
+          "Rejected": 0.0399564079602739
+        }
+      }
+    },
+    {
+      "visit_id": 1060,
+      "payload": {
+        "visit_date": "2025-12-01",
+        "department": "ICU",
+        "visit_type": "ER",
+        "age": 70,
+        "gender": "F",
+        "city": "Pune",
+        "insurance_provider": "CareOne",
+        "chronic_flag": false,
+        "prior_visit_count": 6,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.16666666666666666,
+        "days_since_last_visit": 32.0,
+        "doctor_load_30d": 16,
+        "provider_prior_claim_count": 5420.0,
+        "provider_prior_rejection_rate": 0.1481549815498155,
+        "billed_amount": 19047.21,
+        "length_of_stay_hours": 30.6,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Rejected",
+        "probabilities": {
+          "Paid": 0.4946799201354294,
+          "Pending": 0.243673830860957,
+          "Rejected": 0.2616462490036135
+        }
+      }
+    },
+    {
+      "visit_id": 1824,
+      "payload": {
+        "visit_date": "2026-01-05",
+        "department": "Orthopedics",
+        "visit_type": "OPD",
+        "age": 25,
+        "gender": "M",
+        "city": "Pune",
+        "insurance_provider": "MediCareX",
+        "chronic_flag": true,
+        "prior_visit_count": 7,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.14285714285714285,
+        "days_since_last_visit": 6.0,
+        "doctor_load_30d": 10,
+        "provider_prior_claim_count": 6215.0,
+        "provider_prior_rejection_rate": 0.15285599356395815,
+        "billed_amount": 15551.13,
+        "length_of_stay_hours": 25.0,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Rejected",
+        "probabilities": {
+          "Paid": 0.5117660030895422,
+          "Pending": 0.2359709691790452,
+          "Rejected": 0.2522630277314125
+        }
+      }
+    },
+    {
+      "visit_id": 2068,
+      "payload": {
+        "visit_date": "2026-01-19",
+        "department": "Orthopedics",
+        "visit_type": "OPD",
+        "age": 23,
+        "gender": "M",
+        "city": "Delhi",
+        "insurance_provider": "MediCareX",
+        "chronic_flag": false,
+        "prior_visit_count": 4,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.25,
+        "days_since_last_visit": 167.0,
+        "doctor_load_30d": 20,
+        "provider_prior_claim_count": 6506.0,
+        "provider_prior_rejection_rate": 0.1526283430679373,
+        "billed_amount": 18137.55,
+        "length_of_stay_hours": 9.34,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Rejected",
+        "probabilities": {
+          "Paid": 0.5099545246746213,
+          "Pending": 0.2522942080451456,
+          "Rejected": 0.237751267280233
+        }
+      }
+    },
+    {
+      "visit_id": 3138,
+      "payload": {
+        "visit_date": "2026-01-05",
+        "department": "ER",
+        "visit_type": "ER",
+        "age": 53,
+        "gender": "M",
+        "city": "Pune",
+        "insurance_provider": "CareOne",
+        "chronic_flag": false,
+        "prior_visit_count": 4,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.25,
+        "days_since_last_visit": 11.0,
+        "doctor_load_30d": 27,
+        "provider_prior_claim_count": 6008.0,
+        "provider_prior_rejection_rate": 0.14896804260985352,
+        "billed_amount": 25012.15,
+        "length_of_stay_hours": 34.77,
+        "risk_score": "Medium"
+      },
+      "expected": {
+        "predicted_class": "Rejected",
+        "probabilities": {
+          "Paid": 0.5212853074399297,
+          "Pending": 0.2463793093500406,
+          "Rejected": 0.2323353832100295
+        }
+      }
+    },
+    {
+      "visit_id": 4390,
+      "payload": {
+        "visit_date": "2025-12-19",
+        "department": "General",
+        "visit_type": "ER",
+        "age": 44,
+        "gender": "F",
+        "city": "Pune",
+        "insurance_provider": "CareOne",
+        "chronic_flag": false,
+        "prior_visit_count": 6,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.16666666666666666,
+        "days_since_last_visit": 45.0,
+        "doctor_load_30d": 33,
+        "provider_prior_claim_count": 5714.0,
+        "provider_prior_rejection_rate": 0.14893244662233113,
+        "billed_amount": 60073.21,
+        "length_of_stay_hours": 2.8,
+        "risk_score": "High"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.7627878035357016,
+          "Pending": 0.2337241699865236,
+          "Rejected": 0.0034880264777746
+        }
+      }
+    },
+    {
+      "visit_id": 4451,
+      "payload": {
+        "visit_date": "2025-12-22",
+        "department": "ICU",
+        "visit_type": "OPD",
+        "age": 24,
+        "gender": "M",
+        "city": "Mumbai",
+        "insurance_provider": "MediCareX",
+        "chronic_flag": false,
+        "prior_visit_count": 2,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 50.0,
+        "doctor_load_30d": 20,
+        "provider_prior_claim_count": 5955.0,
+        "provider_prior_rejection_rate": 0.15180520570948783,
+        "billed_amount": 500.0,
+        "length_of_stay_hours": 7.9,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.723086487983145,
+          "Pending": 0.2413484720580615,
+          "Rejected": 0.0355650399587934
+        }
+      }
+    },
+    {
+      "visit_id": 4566,
+      "payload": {
+        "visit_date": "2025-12-18",
+        "department": "Cardiology",
+        "visit_type": "ER",
+        "age": 61,
+        "gender": "M",
+        "city": "Hyderabad",
+        "insurance_provider": "MediCareX",
+        "chronic_flag": true,
+        "prior_visit_count": 3,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 17.0,
+        "doctor_load_30d": 22,
+        "provider_prior_claim_count": 5888.0,
+        "provider_prior_rejection_rate": 0.15115489130434784,
+        "billed_amount": 42720.48,
+        "length_of_stay_hours": 1.66,
+        "risk_score": "Medium"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.7320236484643313,
+          "Pending": 0.2492524336886867,
+          "Rejected": 0.0187239178469818
+        }
+      }
+    },
+    {
+      "visit_id": 4596,
+      "payload": {
+        "visit_date": "2025-12-13",
+        "department": "General",
+        "visit_type": "ICU",
+        "age": 71,
+        "gender": "F",
+        "city": "Pune",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": true,
+        "prior_visit_count": 4,
+        "prior_high_risk_count": 2,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.25,
+        "days_since_last_visit": 77.0,
+        "doctor_load_30d": 17,
+        "provider_prior_claim_count": 5330.0,
+        "provider_prior_rejection_rate": 0.15891181988742964,
+        "billed_amount": 6016.48,
+        "length_of_stay_hours": 34.62,
+        "risk_score": "Medium"
+      },
+      "expected": {
+        "predicted_class": "Pending",
+        "probabilities": {
+          "Paid": 0.6890209653623579,
+          "Pending": 0.2618088119639492,
+          "Rejected": 0.049170222673693
+        }
+      }
+    },
+    {
+      "visit_id": 4806,
+      "payload": {
+        "visit_date": "2025-12-05",
+        "department": "ICU",
+        "visit_type": "OPD",
+        "age": 51,
+        "gender": "M",
+        "city": "Mumbai",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": true,
+        "prior_visit_count": 2,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 32.0,
+        "doctor_load_30d": 22,
+        "provider_prior_claim_count": 5189.0,
+        "provider_prior_rejection_rate": 0.1582193100790133,
+        "billed_amount": 26850.36,
+        "length_of_stay_hours": 5.51,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Rejected",
+        "probabilities": {
+          "Paid": 0.570442899487052,
+          "Pending": 0.2418411162489772,
+          "Rejected": 0.1877159842639706
+        }
+      }
+    },
+    {
+      "visit_id": 7077,
+      "payload": {
+        "visit_date": "2025-12-22",
+        "department": "ICU",
+        "visit_type": "ICU",
+        "age": 78,
+        "gender": "M",
+        "city": "Chennai",
+        "insurance_provider": "HealthPlus",
+        "chronic_flag": false,
+        "prior_visit_count": 5,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 134.0,
+        "doctor_load_30d": 27,
+        "provider_prior_claim_count": 5739.0,
+        "provider_prior_rejection_rate": 0.15037462972643317,
+        "billed_amount": 18125.3,
+        "length_of_stay_hours": 0.55,
+        "risk_score": "Medium"
+      },
+      "expected": {
+        "predicted_class": "Rejected",
+        "probabilities": {
+          "Paid": 0.4910693893929613,
+          "Pending": 0.2410465205476077,
+          "Rejected": 0.2678840900594308
+        }
+      }
+    },
+    {
+      "visit_id": 8464,
+      "payload": {
+        "visit_date": "2026-01-05",
+        "department": "ER",
+        "visit_type": "OPD",
+        "age": 64,
+        "gender": "F",
+        "city": "Bangalore",
+        "insurance_provider": "CareOne",
+        "chronic_flag": false,
+        "prior_visit_count": 6,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 63.0,
+        "doctor_load_30d": 13,
+        "provider_prior_claim_count": 6008.0,
+        "provider_prior_rejection_rate": 0.14896804260985352,
+        "billed_amount": 19489.7,
+        "length_of_stay_hours": 9.08,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Rejected",
+        "probabilities": {
+          "Paid": 0.4981803372914218,
+          "Pending": 0.2405841849368942,
+          "Rejected": 0.261235477771684
+        }
+      }
+    },
+    {
+      "visit_id": 8527,
+      "payload": {
+        "visit_date": "2025-11-27",
+        "department": "ER",
+        "visit_type": "ICU",
+        "age": 24,
+        "gender": "M",
+        "city": "Pune",
+        "insurance_provider": "MediCareX",
+        "chronic_flag": false,
+        "prior_visit_count": 5,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.2,
+        "days_since_last_visit": 69.0,
+        "doctor_load_30d": 21,
+        "provider_prior_claim_count": 5505.0,
+        "provider_prior_rejection_rate": 0.15331516802906447,
+        "billed_amount": 4988.69,
+        "length_of_stay_hours": 23.0,
+        "risk_score": "Medium"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.6976476267520118,
+          "Pending": 0.2539432408643574,
+          "Rejected": 0.0484091323836308
+        }
+      }
+    },
+    {
+      "visit_id": 9086,
+      "payload": {
+        "visit_date": "2026-01-02",
+        "department": "ICU",
+        "visit_type": "ICU",
+        "age": 60,
+        "gender": "M",
+        "city": "Hyderabad",
+        "insurance_provider": "CareOne",
+        "chronic_flag": true,
+        "prior_visit_count": 7,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 40.0,
+        "doctor_load_30d": 18,
+        "provider_prior_claim_count": 5951.0,
+        "provider_prior_rejection_rate": 0.14871450176440934,
+        "billed_amount": 28319.85,
+        "length_of_stay_hours": 17.56,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Pending",
+        "probabilities": {
+          "Paid": 0.6035482996797404,
+          "Pending": 0.2618830763543169,
+          "Rejected": 0.1345686239659426
+        }
+      }
+    },
+    {
+      "visit_id": 9779,
+      "payload": {
+        "visit_date": "2025-12-08",
+        "department": "ER",
+        "visit_type": "ICU",
+        "age": 1,
+        "gender": "M",
+        "city": "Delhi",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": false,
+        "prior_visit_count": 3,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 2,
+        "prior_rejection_rate": 0.6666666666666666,
+        "days_since_last_visit": 111.0,
+        "doctor_load_30d": 24,
+        "provider_prior_claim_count": 5238.0,
+        "provider_prior_rejection_rate": 0.15788468881252388,
+        "billed_amount": 20029.79,
+        "length_of_stay_hours": 25.72,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Rejected",
+        "probabilities": {
+          "Paid": 0.5229856191526058,
+          "Pending": 0.227429143167257,
+          "Rejected": 0.2495852376801371
+        }
+      }
+    },
+    {
+      "visit_id": 11995,
+      "payload": {
+        "visit_date": "2025-11-30",
+        "department": "ICU",
+        "visit_type": "ER",
+        "age": 61,
+        "gender": "M",
+        "city": "Mumbai",
+        "insurance_provider": "HealthPlus",
+        "chronic_flag": true,
+        "prior_visit_count": 8,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 2,
+        "prior_rejection_rate": 0.25,
+        "days_since_last_visit": 25.0,
+        "doctor_load_30d": 18,
+        "provider_prior_claim_count": 5369.0,
+        "provider_prior_rejection_rate": 0.15291488172844106,
+        "billed_amount": 3960.94,
+        "length_of_stay_hours": 5.04,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.6921751590211057,
+          "Pending": 0.2594986881251032,
+          "Rejected": 0.0483261528537911
+        }
+      }
+    },
+    {
+      "visit_id": 12258,
+      "payload": {
+        "visit_date": "2025-11-30",
+        "department": "General",
+        "visit_type": "OPD",
+        "age": 8,
+        "gender": "M",
+        "city": "Chennai",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": true,
+        "prior_visit_count": 4,
+        "prior_high_risk_count": 2,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.25,
+        "days_since_last_visit": 10.0,
+        "doctor_load_30d": 25,
+        "provider_prior_claim_count": 5109.0,
+        "provider_prior_rejection_rate": 0.15854374633000587,
+        "billed_amount": 11830.41,
+        "length_of_stay_hours": 11.71,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.5904040114131286,
+          "Pending": 0.2441421845253956,
+          "Rejected": 0.1654538040614758
+        }
+      }
+    },
+    {
+      "visit_id": 12666,
+      "payload": {
+        "visit_date": "2025-12-04",
+        "department": "Orthopedics",
+        "visit_type": "OPD",
+        "age": 43,
+        "gender": "M",
+        "city": "Delhi",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": true,
+        "prior_visit_count": 5,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 70.0,
+        "doctor_load_30d": 21,
+        "provider_prior_claim_count": 5166.0,
+        "provider_prior_rejection_rate": 0.15776229190863336,
+        "billed_amount": 42292.42,
+        "length_of_stay_hours": 43.6,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.732648217498654,
+          "Pending": 0.2405707589507138,
+          "Rejected": 0.0267810235506321
+        }
+      }
+    },
+    {
+      "visit_id": 13455,
+      "payload": {
+        "visit_date": "2025-11-21",
+        "department": "General",
+        "visit_type": "OPD",
+        "age": 39,
+        "gender": "M",
+        "city": "Chennai",
+        "insurance_provider": "HealthPlus",
+        "chronic_flag": false,
+        "prior_visit_count": 6,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 4,
+        "prior_rejection_rate": 0.6666666666666666,
+        "days_since_last_visit": 2.0,
+        "doctor_load_30d": 21,
+        "provider_prior_claim_count": 5223.0,
+        "provider_prior_rejection_rate": 0.15182845108175377,
+        "billed_amount": 3875.16,
+        "length_of_stay_hours": 13.17,
+        "risk_score": "High"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.7010736545659616,
+          "Pending": 0.2538752256195097,
+          "Rejected": 0.0450511198145285
+        }
+      }
+    },
+    {
+      "visit_id": 13785,
+      "payload": {
+        "visit_date": "2025-12-25",
+        "department": "Neurology",
+        "visit_type": "ER",
+        "age": 52,
+        "gender": "F",
+        "city": "Chennai",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": true,
+        "prior_visit_count": 3,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 56.0,
+        "doctor_load_30d": 14,
+        "provider_prior_claim_count": 5545.0,
+        "provider_prior_rejection_rate": 0.15906221821460775,
+        "billed_amount": 2969.44,
+        "length_of_stay_hours": 33.51,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.6950218255983819,
+          "Pending": 0.2562561883781039,
+          "Rejected": 0.0487219860235141
+        }
+      }
+    },
+    {
+      "visit_id": 15540,
+      "payload": {
+        "visit_date": "2025-12-31",
+        "department": "Neurology",
+        "visit_type": "ICU",
+        "age": 2,
+        "gender": "M",
+        "city": "Delhi",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": false,
+        "prior_visit_count": 4,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.25,
+        "days_since_last_visit": 22.0,
+        "doctor_load_30d": 32,
+        "provider_prior_claim_count": 5646.0,
+        "provider_prior_rejection_rate": 0.15887353878852284,
+        "billed_amount": 24237.17,
+        "length_of_stay_hours": 35.09,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Rejected",
+        "probabilities": {
+          "Paid": 0.5359368589325468,
+          "Pending": 0.227474426665472,
+          "Rejected": 0.2365887144019811
+        }
+      }
+    },
+    {
+      "visit_id": 16018,
+      "payload": {
+        "visit_date": "2026-01-14",
+        "department": "Orthopedics",
+        "visit_type": "ER",
+        "age": 58,
+        "gender": "F",
+        "city": "Delhi",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": true,
+        "prior_visit_count": 8,
+        "prior_high_risk_count": 2,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 58.0,
+        "doctor_load_30d": 20,
+        "provider_prior_claim_count": 5858.0,
+        "provider_prior_rejection_rate": 0.15739160122908843,
+        "billed_amount": 53113.01,
+        "length_of_stay_hours": 12.56,
+        "risk_score": "High"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.756183836297134,
+          "Pending": 0.2402371116768559,
+          "Rejected": 0.0035790520260099
+        }
+      }
+    },
+    {
+      "visit_id": 16142,
+      "payload": {
+        "visit_date": "2026-01-12",
+        "department": "ICU",
+        "visit_type": "OPD",
+        "age": 17,
+        "gender": "F",
+        "city": "Hyderabad",
+        "insurance_provider": "CareOne",
+        "chronic_flag": false,
+        "prior_visit_count": 9,
+        "prior_high_risk_count": 2,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.1111111111111111,
+        "days_since_last_visit": 84.0,
+        "doctor_load_30d": 16,
+        "provider_prior_claim_count": 6135.0,
+        "provider_prior_rejection_rate": 0.14898125509372454,
+        "billed_amount": 39675.47,
+        "length_of_stay_hours": 14.33,
+        "risk_score": "High"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.6995727254305153,
+          "Pending": 0.2395470137622269,
+          "Rejected": 0.0608802608072578
+        }
+      }
+    },
+    {
+      "visit_id": 16209,
+      "payload": {
+        "visit_date": "2026-01-09",
+        "department": "General",
+        "visit_type": "ICU",
+        "age": 60,
+        "gender": "M",
+        "city": "Pune",
+        "insurance_provider": "HealthPlus",
+        "chronic_flag": false,
+        "prior_visit_count": 3,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 89.0,
+        "doctor_load_30d": 21,
+        "provider_prior_claim_count": 6027.0,
+        "provider_prior_rejection_rate": 0.1493280238924838,
+        "billed_amount": 9453.83,
+        "length_of_stay_hours": 45.06,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Pending",
+        "probabilities": {
+          "Paid": 0.6077618826343955,
+          "Pending": 0.2443945838768407,
+          "Rejected": 0.1478435334887639
+        }
+      }
+    },
+    {
+      "visit_id": 16324,
+      "payload": {
+        "visit_date": "2025-11-26",
+        "department": "Orthopedics",
+        "visit_type": "ER",
+        "age": 55,
+        "gender": "M",
+        "city": "Mumbai",
+        "insurance_provider": "HealthPlus",
+        "chronic_flag": true,
+        "prior_visit_count": 4,
+        "prior_high_risk_count": 2,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.25,
+        "days_since_last_visit": 70.0,
+        "doctor_load_30d": 20,
+        "provider_prior_claim_count": 5317.0,
+        "provider_prior_rejection_rate": 0.15177731803648675,
+        "billed_amount": 33344.33,
+        "length_of_stay_hours": 20.41,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.6474924001985217,
+          "Pending": 0.2431516186652556,
+          "Rejected": 0.1093559811362225
+        }
+      }
+    },
+    {
+      "visit_id": 16480,
+      "payload": {
+        "visit_date": "2026-01-09",
+        "department": "ICU",
+        "visit_type": "ER",
+        "age": 63,
+        "gender": "F",
+        "city": "Mumbai",
+        "insurance_provider": "HealthPlus",
+        "chronic_flag": true,
+        "prior_visit_count": 9,
+        "prior_high_risk_count": 2,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 3.0,
+        "doctor_load_30d": 14,
+        "provider_prior_claim_count": 6027.0,
+        "provider_prior_rejection_rate": 0.1493280238924838,
+        "billed_amount": 30962.7,
+        "length_of_stay_hours": 25.25,
+        "risk_score": "High"
+      },
+      "expected": {
+        "predicted_class": "Pending",
+        "probabilities": {
+          "Paid": 0.6129015357824874,
+          "Pending": 0.2482431676081129,
+          "Rejected": 0.1388552966093996
+        }
+      }
+    },
+    {
+      "visit_id": 16486,
+      "payload": {
+        "visit_date": "2025-12-15",
+        "department": "ICU",
+        "visit_type": "ICU",
+        "age": 13,
+        "gender": "F",
+        "city": "Hyderabad",
+        "insurance_provider": "MediCareX",
+        "chronic_flag": true,
+        "prior_visit_count": 4,
+        "prior_high_risk_count": 2,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 14.0,
+        "doctor_load_30d": 10,
+        "provider_prior_claim_count": 5841.0,
+        "provider_prior_rejection_rate": 0.15168635507618558,
+        "billed_amount": 24792.02,
+        "length_of_stay_hours": 11.4,
+        "risk_score": "Medium"
+      },
+      "expected": {
+        "predicted_class": "Rejected",
+        "probabilities": {
+          "Paid": 0.5447366674789196,
+          "Pending": 0.2571170828728058,
+          "Rejected": 0.1981462496482745
+        }
+      }
+    },
+    {
+      "visit_id": 17490,
+      "payload": {
+        "visit_date": "2025-12-29",
+        "department": "Neurology",
+        "visit_type": "ICU",
+        "age": 55,
+        "gender": "M",
+        "city": "Bangalore",
+        "insurance_provider": "CareOne",
+        "chronic_flag": true,
+        "prior_visit_count": 4,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 39.0,
+        "doctor_load_30d": 18,
+        "provider_prior_claim_count": 5891.0,
+        "provider_prior_rejection_rate": 0.14870140892887457,
+        "billed_amount": 32544.48,
+        "length_of_stay_hours": 17.88,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.6364292186912844,
+          "Pending": 0.2527664855917954,
+          "Rejected": 0.1108042957169201
+        }
+      }
+    },
+    {
+      "visit_id": 18740,
+      "payload": {
+        "visit_date": "2025-12-01",
+        "department": "Cardiology",
+        "visit_type": "ER",
+        "age": 28,
+        "gender": "M",
+        "city": "Hyderabad",
+        "insurance_provider": "MediCareX",
+        "chronic_flag": true,
+        "prior_visit_count": 2,
+        "prior_high_risk_count": 2,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 175.0,
+        "doctor_load_30d": 22,
+        "provider_prior_claim_count": 5575.0,
+        "provider_prior_rejection_rate": 0.15246636771300448,
+        "billed_amount": 569.03,
+        "length_of_stay_hours": 31.22,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.7066991916079906,
+          "Pending": 0.246520555099243,
+          "Rejected": 0.0467802532927664
+        }
+      }
+    },
+    {
+      "visit_id": 18808,
+      "payload": {
+        "visit_date": "2025-12-08",
+        "department": "General",
+        "visit_type": "ER",
+        "age": 46,
+        "gender": "M",
+        "city": "Mumbai",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": false,
+        "prior_visit_count": 4,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.25,
+        "days_since_last_visit": 69.0,
+        "doctor_load_30d": 16,
+        "provider_prior_claim_count": 5238.0,
+        "provider_prior_rejection_rate": 0.15788468881252388,
+        "billed_amount": 11532.15,
+        "length_of_stay_hours": 16.21,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Pending",
+        "probabilities": {
+          "Paid": 0.5835423090722702,
+          "Pending": 0.2452921345694896,
+          "Rejected": 0.17116555635824
+        }
+      }
+    },
+    {
+      "visit_id": 19043,
+      "payload": {
+        "visit_date": "2026-01-08",
+        "department": "ER",
+        "visit_type": "OPD",
+        "age": 66,
+        "gender": "M",
+        "city": "Mumbai",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": false,
+        "prior_visit_count": 6,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.16666666666666666,
+        "days_since_last_visit": 49.0,
+        "doctor_load_30d": 25,
+        "provider_prior_claim_count": 5764.0,
+        "provider_prior_rejection_rate": 0.1578764746703678,
+        "billed_amount": 44330.22,
+        "length_of_stay_hours": 3.03,
+        "risk_score": "Medium"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.7424956114541026,
+          "Pending": 0.2527889951703597,
+          "Rejected": 0.0047153933755377
+        }
+      }
+    },
+    {
+      "visit_id": 19930,
+      "payload": {
+        "visit_date": "2026-01-03",
+        "department": "General",
+        "visit_type": "ICU",
+        "age": 26,
+        "gender": "M",
+        "city": "Hyderabad",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": true,
+        "prior_visit_count": 5,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 28.0,
+        "doctor_load_30d": 20,
+        "provider_prior_claim_count": 5683.0,
+        "provider_prior_rejection_rate": 0.15871898645081822,
+        "billed_amount": 1799.87,
+        "length_of_stay_hours": 22.35,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.7118211125165725,
+          "Pending": 0.2485942827906686,
+          "Rejected": 0.0395846046927587
+        }
+      }
+    },
+    {
+      "visit_id": 20266,
+      "payload": {
+        "visit_date": "2026-01-08",
+        "department": "Cardiology",
+        "visit_type": "ER",
+        "age": 33,
+        "gender": "M",
+        "city": "Pune",
+        "insurance_provider": "MediCareX",
+        "chronic_flag": true,
+        "prior_visit_count": 5,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 2,
+        "prior_rejection_rate": 0.4,
+        "days_since_last_visit": 18.0,
+        "doctor_load_30d": 19,
+        "provider_prior_claim_count": 6290.0,
+        "provider_prior_rejection_rate": 0.15310015898251192,
+        "billed_amount": 50331.69,
+        "length_of_stay_hours": 15.98,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.7648983351368593,
+          "Pending": 0.2312153969982076,
+          "Rejected": 0.003886267864933
+        }
+      }
+    },
+    {
+      "visit_id": 20470,
+      "payload": {
+        "visit_date": "2025-12-19",
+        "department": "General",
+        "visit_type": "ICU",
+        "age": 58,
+        "gender": "M",
+        "city": "Hyderabad",
+        "insurance_provider": "HealthPlus",
+        "chronic_flag": false,
+        "prior_visit_count": 3,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 12.0,
+        "doctor_load_30d": 19,
+        "provider_prior_claim_count": 5697.0,
+        "provider_prior_rejection_rate": 0.15060558188520273,
+        "billed_amount": 3364.81,
+        "length_of_stay_hours": 18.74,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.7001980493763664,
+          "Pending": 0.2493064551101096,
+          "Rejected": 0.0504954955135238
+        }
+      }
+    },
+    {
+      "visit_id": 20482,
+      "payload": {
+        "visit_date": "2026-01-11",
+        "department": "General",
+        "visit_type": "OPD",
+        "age": 63,
+        "gender": "M",
+        "city": "Delhi",
+        "insurance_provider": "CareOne",
+        "chronic_flag": true,
+        "prior_visit_count": 9,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 2,
+        "prior_rejection_rate": 0.2222222222222222,
+        "days_since_last_visit": 33.0,
+        "doctor_load_30d": 17,
+        "provider_prior_claim_count": 6120.0,
+        "provider_prior_rejection_rate": 0.14901960784313725,
+        "billed_amount": 8043.81,
+        "length_of_stay_hours": 4.24,
+        "risk_score": "Medium"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.6105512455608524,
+          "Pending": 0.2501287547753892,
+          "Rejected": 0.1393199996637584
+        }
+      }
+    },
+    {
+      "visit_id": 21861,
+      "payload": {
+        "visit_date": "2026-01-13",
+        "department": "Orthopedics",
+        "visit_type": "ER",
+        "age": 47,
+        "gender": "M",
+        "city": "Chennai",
+        "insurance_provider": "CareOne",
+        "chronic_flag": true,
+        "prior_visit_count": 7,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.14285714285714285,
+        "days_since_last_visit": 86.0,
+        "doctor_load_30d": 12,
+        "provider_prior_claim_count": 6149.0,
+        "provider_prior_rejection_rate": 0.14880468368840463,
+        "billed_amount": 7061.07,
+        "length_of_stay_hours": 10.43,
+        "risk_score": "Medium"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.6495843313914825,
+          "Pending": 0.258706556527934,
+          "Rejected": 0.0917091120805834
+        }
+      }
+    },
+    {
+      "visit_id": 22081,
+      "payload": {
+        "visit_date": "2025-12-05",
+        "department": "ICU",
+        "visit_type": "OPD",
+        "age": 13,
+        "gender": "M",
+        "city": "Mumbai",
+        "insurance_provider": "MediCareX",
+        "chronic_flag": false,
+        "prior_visit_count": 2,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 24.0,
+        "doctor_load_30d": 22,
+        "provider_prior_claim_count": 5637.0,
+        "provider_prior_rejection_rate": 0.15185382295547276,
+        "billed_amount": 6292.97,
+        "length_of_stay_hours": 0.5,
+        "risk_score": "High"
+      },
+      "expected": {
+        "predicted_class": "Pending",
+        "probabilities": {
+          "Paid": 0.686215324601842,
+          "Pending": 0.2645246584367263,
+          "Rejected": 0.0492600169614316
+        }
+      }
+    },
+    {
+      "visit_id": 22611,
+      "payload": {
+        "visit_date": "2025-11-23",
+        "department": "General",
+        "visit_type": "OPD",
+        "age": 27,
+        "gender": "M",
+        "city": "Mumbai",
+        "insurance_provider": "MediCareX",
+        "chronic_flag": true,
+        "prior_visit_count": 2,
+        "prior_high_risk_count": 0,
+        "prior_rejection_count": 0,
+        "prior_rejection_rate": 0.0,
+        "days_since_last_visit": 28.0,
+        "doctor_load_30d": 21,
+        "provider_prior_claim_count": 5426.0,
+        "provider_prior_rejection_rate": 0.15388868411352746,
+        "billed_amount": 22934.53,
+        "length_of_stay_hours": 6.47,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Rejected",
+        "probabilities": {
+          "Paid": 0.5035611160406743,
+          "Pending": 0.2407871953225134,
+          "Rejected": 0.2556516886368123
+        }
+      }
+    },
+    {
+      "visit_id": 22636,
+      "payload": {
+        "visit_date": "2025-12-24",
+        "department": "Cardiology",
+        "visit_type": "ICU",
+        "age": 43,
+        "gender": "M",
+        "city": "Pune",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": true,
+        "prior_visit_count": 4,
+        "prior_high_risk_count": 2,
+        "prior_rejection_count": 2,
+        "prior_rejection_rate": 0.5,
+        "days_since_last_visit": 84.0,
+        "doctor_load_30d": 17,
+        "provider_prior_claim_count": 5527.0,
+        "provider_prior_rejection_rate": 0.1584946625655871,
+        "billed_amount": 9524.54,
+        "length_of_stay_hours": 11.26,
+        "risk_score": "Low"
+      },
+      "expected": {
+        "predicted_class": "Pending",
+        "probabilities": {
+          "Paid": 0.605183691717122,
+          "Pending": 0.2500307185747068,
+          "Rejected": 0.1447855897081711
+        }
+      }
+    },
+    {
+      "visit_id": 22706,
+      "payload": {
+        "visit_date": "2025-11-27",
+        "department": "Cardiology",
+        "visit_type": "OPD",
+        "age": 61,
+        "gender": "F",
+        "city": "Hyderabad",
+        "insurance_provider": "SecureLife",
+        "chronic_flag": true,
+        "prior_visit_count": 5,
+        "prior_high_risk_count": 1,
+        "prior_rejection_count": 1,
+        "prior_rejection_rate": 0.2,
+        "days_since_last_visit": 153.0,
+        "doctor_load_30d": 21,
+        "provider_prior_claim_count": 5061.0,
+        "provider_prior_rejection_rate": 0.15826911677534083,
+        "billed_amount": 35971.02,
+        "length_of_stay_hours": 13.58,
+        "risk_score": "Medium"
+      },
+      "expected": {
+        "predicted_class": "Paid",
+        "probabilities": {
+          "Paid": 0.6664375814301136,
+          "Pending": 0.2303548208031471,
+          "Rejected": 0.1032075977667394
+        }
+      }
+    }
+  ]
+}
