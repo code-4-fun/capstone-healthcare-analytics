@@ -1,0 +1,21 @@
+dimension,value,claims,rejected,rejection_rate_pct
+billed_band,3. 15k-30k,10892,2468,22.7
+billed_band,2. 5k-15k,6237,868,13.9
+billed_band,4. 30k+,5410,350,6.5
+billed_band,1. <5k,2461,111,4.5
+department,Orthopedics,4164,651,15.6
+department,Cardiology,4159,649,15.6
+department,General,4228,643,15.2
+department,Neurology,4165,627,15.1
+department,ER,4220,633,15.0
+department,ICU,4064,594,14.6
+insurance_provider,SecureLife,5965,936,15.7
+insurance_provider,MediCareX,6532,996,15.2
+insurance_provider,HealthPlus,6220,931,15.0
+insurance_provider,CareOne,6283,934,14.9
+risk_score,High,5034,806,16.0
+risk_score,Medium,7496,1126,15.0
+risk_score,Low,12470,1865,15.0
+visit_type,ER,8382,1341,16.0
+visit_type,OPD,8381,1238,14.8
+visit_type,ICU,8237,1218,14.8

@@ -1,0 +1,5 @@
+insurance_provider,claims,paid_claims,pending_claims,rejected_claims,paid_rate_pct,pending_rate_pct,rejection_rate_pct,avg_approved_ratio_pct,avg_payment_days,p90_payment_days,total_billed,total_collected,total_leakage,realization_rate_pct
+MediCareX,6532,3875,1661,996,59.3,25.4,15.2,79.5,12.5,20.0,134591163.08,77948490.59,23616264.21,57.9
+CareOne,6283,3787,1562,934,60.3,24.9,14.9,80.2,12.5,19.0,130707992.64,75984843.05,22593630.07,58.1
+HealthPlus,6220,3680,1609,931,59.2,25.9,15.0,79.7,12.6,20.0,130180740.75,74256786.27,22836615.56,57.0
+SecureLife,5965,3598,1431,936,60.3,24.0,15.7,79.4,12.5,19.0,126289039.58,74076097.19,22755434.87,58.7
