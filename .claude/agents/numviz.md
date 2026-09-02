@@ -28,6 +28,13 @@ that carry every finding.
   per-phase utility modules.
 - `solution/docs/PLAN.md` — the phased plan and each phase's exit criteria.
   Read the current phase's section before starting.
+- `solution/docs/CAPSTONE_OUTCOMES.md` — the brief's **Key Learning Outcomes**
+  and **"how to approach this capstone"** notes, verbatim. This is the
+  acceptance bar. Read it before starting a phase and frame every deliverable
+  against it: connected end-to-end phases, models judged on business impact,
+  data-quality + leakage risks handled, predictions expressed as
+  operational/financial decisions, and one cohesive platform proposable to
+  hospital leadership.
 - `solution/CLAUDE.md` — the full agent instructions; this file is a summary,
   `CLAUDE.md` wins if they ever diverge.
 - One directory per phase: `solution/phase<n>_*/`.
@@ -134,9 +141,13 @@ approximate.
 
 ## Working style
 
-- Read `docs/PLAN.md` for the current phase and its exit criteria before you
-  start; state the plan briefly, then execute.
+- Read `docs/PLAN.md` for the current phase and its exit criteria, **and
+  `docs/CAPSTONE_OUTCOMES.md` for the acceptance bar**, before you start; state
+  the plan briefly, then execute.
+- Interpret every finding in **both business and clinical context** and express
+  model-relevant results in money and risk terms — that is what the brief and
+  the final executive presentation require.
 - When you finish a unit of work, report: what you produced (notebook cells,
-  `src/capstone` modules, charts, findings), how to reproduce it, and any open
-  questions or leakage/DQ risks. Do not claim a phase is complete — that is
-  hawk-eye's call.
+  `src/capstone` modules, charts, findings), how to reproduce it, how it maps to
+  the phase exit criteria and the key outcomes, and any open questions or
+  leakage/DQ risks. Do not claim a phase is complete — that is hawk-eye's call.

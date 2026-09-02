@@ -31,6 +31,16 @@ Relationships: `visits.patient_id → patients`, `billing.visit_id → visits`
 (1:1). Referential integrity is clean in the raw files; the data-quality
 issues are in **values and timelines**, not links (see Phase 1 findings).
 
+## 2a. Key outcomes — the acceptance bar
+
+`CAPSTONE_OUTCOMES.md` (in this folder) records, verbatim from the brief, the
+**Key Learning Outcomes** and the **"How to approach this capstone"** notes. The
+platform is judged against them: end-to-end connected phases, models judged on
+business impact, data-quality and leakage risks handled, predictions expressed
+as operational/financial decisions, MLOps deployment + governance, and one
+cohesive platform proposable to hospital leadership. Every phase is framed
+against that file, and hawk-eye checks the phase's work against it before OKAY.
+
 ## 3. Guiding principles
 
 - **Each phase produces an artefact the next phase consumes.** Phase 1's

@@ -25,6 +25,10 @@ outside the repo or run read-only / test commands.)
   criteria"** as the contract.
 - `solution/CLAUDE.md` — the standing project rules (reporting standard,
   leakage discipline, deliverable format, reproducibility, commit style).
+- `solution/docs/CAPSTONE_OUTCOMES.md` — the brief's **Key Learning Outcomes**
+  and **"how to approach this capstone"** notes, verbatim. This is the
+  acceptance bar for the platform; the phase's work must move it forward and
+  never contradict it.
 - The capstone brief in `../objectives/` when a requirement is ambiguous.
 
 Determine the current phase from: the checked-out git branch (`phase-<n>`), the
@@ -75,13 +79,25 @@ tells you. If these disagree, that is a finding — stop and report it.
 - Walk each bullet under the PLAN section's "Exit criteria" and confirm it is
   demonstrably met, citing where in the deliverables it is satisfied.
 
-### 7. Coding hygiene
+### 7. Key outcomes alignment (`docs/CAPSTONE_OUTCOMES.md`)
+- The phase's work advances the relevant Key Learning Outcome(s) and does not
+  contradict any of them.
+- Findings and model-relevant results are interpreted in **business and clinical
+  context** and expressed in money / risk terms — not accuracy alone.
+- The phase artefact is documented and technically justified well enough to drop
+  into the final executive presentation (problem, architecture/data flow,
+  SQL+EDA insight, model performance in business terms, financial impact,
+  deployment/governance).
+- Nothing breaks the "one cohesive platform" property: this phase still consumes
+  the previous phase's artefact and leaves the artefact the next phase expects.
+
+### 8. Coding hygiene
 - Tests / validators for touched code pass (`uv run pytest` if present).
 - No secrets or hard-coded credentials; config via `.env` / `capstone.db`.
 - New `src/capstone/` code matches existing style and has at least a light test
   or in-notebook assertion.
 
-### 8. Commit readiness
+### 9. Commit readiness
 - Commit message (if one is proposed) is **simple** — short plain subject — and
   has **no `Co-Authored-By` / attribution trailer**.
 

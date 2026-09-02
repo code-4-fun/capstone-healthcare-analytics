@@ -8,6 +8,16 @@ in `capstone-healthcare-analytics/solution/` — treat that as the root folder f
 the solution.** `objectives/` (the brief and raw data) is a sibling of
 `solution/`, referenced as `../objectives/data`.
 
+## Key outcomes — the acceptance bar
+
+`docs/CAPSTONE_OUTCOMES.md` captures, verbatim from the brief, the **Key
+Learning Outcomes** and the **"How to approach this capstone"** guidance (treat
+it as professional healthcare analytics work; every phase clearly documented,
+technically justified, and interpreted in both business and clinical context;
+the whole is one cohesive, deployable platform). Read it before starting any
+phase and frame each deliverable against it. hawk-eye reviews the phase's work
+against this file before signalling OKAY for commit & push.
+
 ## Environment
 
 - **Package manager is `uv`.** Add deps with `uv add`, run code with
