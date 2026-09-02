@@ -4,29 +4,51 @@ Turns the Phase 1 analytics layer into **modelling readiness**: profiled
 distributions, quantified data-quality findings with a written handling policy, a
 leakage-safe feature catalogue, and reusable validators.
 
+**The deliverable is the notebook** — `phase2.ipynb` — which runs top-to-bottom,
+renders every chart and table inline, and writes the outputs below. Reusable
+logic lives in `src/capstone/` (`eda`, `features`, `data_quality`); the notebook
+stays thin and imports it.
+
 ## Run it
 
 ```bash
 # from solution/
 uv sync
 docker start capstone-project-postgres
+
+# headless: regenerate + execute the notebook and all outputs
 uv run python phase2_eda/run_phase2.py
+
+# or open phase2.ipynb and Run All
 ```
 
-Idempotent — rebuilds every CSV, chart and document from
-`capstone_solution.v_visit_billing`. If the analytics layer is unreachable it
-rebuilds it first (`phase1_sql_analytics/run_phase1.py`).
+`run_phase2.py` is idempotent — it checks the Phase 1 layer (rebuilding it via
+`phase1_sql_analytics/run_phase1.py` if unreachable), regenerates `phase2.ipynb`
+from `notebook.py`, and executes it in place.
 
-## What gets built
+## Outputs
 
-| Step | File | Result |
-|---|---|---|
-| 2 | `analyses.py` | profiling + business-analysis tables → `output/*.csv` |
-| 3 | `features.py` | `feature_spec.yaml` (catalogue + leakage register) + `output/feature_frame.parquet` (as-of matrix, one row per visit) |
-| 4 | `data_quality_rules.py` | `output/data_quality_report.csv` — 22 importable validators |
-| 5 | `run_phase2.py` | leakage self-check — asserts no post-outcome field is model-eligible |
-| 6 | `make_charts.py` | 19 charts → `output/charts/` (house style: `capstone.viz`) |
-| 7 | `run_phase2.py` | `PHASE2_FINDINGS.md` — findings by theme, every claim backed by a chart, tables in an appendix |
+| Path | Content |
+|---|---|
+| `phase2.ipynb` | executed review notebook (narrative + inline charts/tables) |
+| `feature_spec.yaml` | feature catalogue + per-model leakage register |
+| `output/feature_frame.parquet` | as-of feature matrix, one row per visit (Phase 3 input) |
+| `output/*.csv` | every analysis table (profiling, DQ report, business analyses, feature signal) |
+| `output/charts/*.png` | 19 house-style charts, one per finding |
+| `PHASE2_FINDINGS.md` | generated report — findings by theme, charts embedded, tables in an appendix |
+
+## Files
+
+```
+phase2.ipynb           the deliverable (generated + executed by run_phase2.py)
+notebook.py            builds phase2.ipynb from a cell list (keeps the notebook thin)
+run_phase2.py          headless entrypoint: ensure layer -> build -> execute
+make_charts.py         one function per finding -> (key, path, caption); build_all()
+report.py              assembles PHASE2_FINDINGS.md from the tables + charts
+../src/capstone/eda.py           profiling + business analyses (returns DataFrames)
+../src/capstone/features.py      as-of feature builder, FEATURE_SPEC, leakage_violations()
+../src/capstone/data_quality.py  Rule registry, validate(), add_quality_flags(), apply_training_exclusions()
+```
 
 ## Key findings
 
@@ -52,7 +74,8 @@ rebuilds it first (`phase1_sql_analytics/run_phase1.py`).
 ## Leakage register (contract for Phase 3)
 
 `feature_spec.yaml` gives every field a definition, source, as-of rule, dtype and
-a **per-model verdict** (`allow` / `exclude` / `target`). Enforced rules:
+a **per-model verdict** (`allow` / `exclude` / `target`).
+`capstone.features.leakage_violations(frame)` enforces:
 
 - `visit_date` is the sole temporal key; nothing derives from `billing_date` or
   `registration_date`.
@@ -64,16 +87,3 @@ a **per-model verdict** (`allow` / `exclude` / `target`). Enforced rules:
 - `risk_score` is the Model A target and a legitimate Model B input.
 - Patient/provider history counts only visits with strictly earlier
   `visit_date`.
-
-## Files
-
-```
-run_phase2.py          single entrypoint (idempotent)
-analyses.py            profiling + business analyses -> tidy DataFrames / CSVs
-features.py            as-of feature builder + FEATURE_SPEC + feature_spec.yaml writer
-data_quality_rules.py  Rule registry, validate(), add_quality_flags(), apply_training_exclusions()
-make_charts.py         one function per finding -> (key, path, caption); build_all()
-feature_spec.yaml      generated feature catalogue + leakage register
-PHASE2_FINDINGS.md     generated report
-output/                generated CSVs, feature_frame.parquet, charts/
-```

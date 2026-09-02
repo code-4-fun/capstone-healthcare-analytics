@@ -46,15 +46,18 @@ See [`phase1_sql_analytics/README.md`](phase1_sql_analytics/README.md).
 ## Run Phase 2
 
 ```bash
-uv run python phase2_eda/run_phase2.py
+uv run python phase2_eda/run_phase2.py     # regenerates + executes phase2_eda/phase2.ipynb
 ```
 
-Reads `v_visit_billing` into pandas and produces modelling-readiness artefacts:
-profiling + business-analysis CSVs → `feature_spec.yaml` (feature catalogue +
-per-model leakage register) → `data_quality_rules.py` validators →
-`output/feature_frame.parquet` (as-of feature matrix) → a leakage self-check → 19
-C-suite charts → `phase2_eda/PHASE2_FINDINGS.md`. Idempotent; rebuilds the Phase 1
-layer first if it is unreachable.
+From Phase 2 on the deliverable is a **Jupyter notebook** (`phase2_eda/phase2.ipynb`)
+that runs top-to-bottom and renders its charts and tables inline; reusable logic
+lives in `src/capstone/` (`eda`, `features`, `data_quality`). The notebook reads
+`v_visit_billing` and produces the modelling-readiness artefacts: profiling +
+business-analysis CSVs, `feature_spec.yaml` (feature catalogue + per-model leakage
+register), `output/feature_frame.parquet` (as-of feature matrix), a leakage
+self-check, 19 house-style charts, and `phase2_eda/PHASE2_FINDINGS.md`.
+`run_phase2.py` is idempotent and rebuilds the Phase 1 layer first if it is
+unreachable.
 
 Headline: Model A (visit risk) has no learnable signal in the available data;
 Model B (claim outcome) is driven almost entirely by `billed_amount` (rejections
@@ -71,13 +74,16 @@ alongside). See [`CLAUDE.md`](CLAUDE.md).
 ## Layout
 
 ```
-CLAUDE.md                 agent instructions (uv, DB, reporting standard)
-src/capstone/db.py        shared Postgres connection / SQLAlchemy engine (reads .env)
-src/capstone/viz.py       shared charting house style (all phases)
-docs/PLAN.md              phased build plan + Phase 1 findings
-phase1_sql_analytics/     Phase 1 (built)
-phase2_eda/               Phase 2 (built)
-phase3_models/ ...        later phases
+CLAUDE.md                    agent instructions (uv, DB, reporting standard, notebook format)
+src/capstone/db.py           shared Postgres connection / SQLAlchemy engine (reads .env)
+src/capstone/viz.py          shared charting house style (all phases)
+src/capstone/eda.py          Phase 2 profiling + business analyses
+src/capstone/features.py     as-of feature builder + FEATURE_SPEC + leakage register
+src/capstone/data_quality.py reusable data-quality validators
+docs/PLAN.md                 phased build plan + Phase 1 findings
+phase1_sql_analytics/        Phase 1 (built, script-based)
+phase2_eda/                  Phase 2 (built, notebook: phase2.ipynb)
+phase3_models/ ...           later phases
 ```
 
 ## Configuration

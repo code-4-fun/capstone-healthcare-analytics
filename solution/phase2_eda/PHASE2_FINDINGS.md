@@ -2,14 +2,15 @@
 
 *Hospital Operations & Revenue Risk Intelligence Platform - modelling readiness*
 
-- Generated: 2026-09-02T00:21:46+00:00
+- Generated: 2026-09-02T00:28:53+00:00
 - Source: `capstone_hospital_analytics` / `capstone_solution.v_visit_billing` - 25,000 visits, 25,000 claims, 5,000 patients (2025-01-20 to 2026-01-20)
+- Driven by `phase2_eda/phase2.ipynb`; reusable logic in `capstone.eda` / `capstone.features` / `capstone.data_quality`.
 - Every finding is backed by a chart in `output/charts/`; supporting numbers are in the appendix and as CSVs in `output/`.
-- Artefacts for Phase 3: `feature_spec.yaml` (catalogue + leakage register), `data_quality_rules.py` (validators), `output/feature_frame.*` (as-of matrix).
+- Artefacts for Phase 3: `feature_spec.yaml` (catalogue + leakage register), `capstone.data_quality` (validators), `output/feature_frame.parquet` (as-of matrix).
 
 ## Executive summary
 
-1. **Model A (visit risk) has no learnable signal.** Every eligible feature sits at the permuted-target noise floor (best < 0.5% of target entropy). `risk_score` is effectively randomly assigned - Phase 3 should expect near-base-rate performance and treat Model A as a monitoring baseline, not a predictor.
+1. **Model A (visit risk) has no learnable signal.** Every eligible feature sits at the permuted-target noise floor (best < 0.5% of target entropy). `risk_score` is effectively randomly assigned - Phase 3 should expect near-base-rate performance and treat Model A as a calibrated monitoring baseline, not a predictor.
 2. **Model B (claim outcome) is a billed-amount model.** `billed_amount` / `billed_band` are the only features above the noise floor; rejection rate is **non-monotonic** - 22.7% at 15k-30k vs 4.5% below 5k and 6.5% above 30k - and that mid band is 70% of denial leakage.
 3. **Targets are imbalanced toward the cheap class.** risk_score 50/30/20 (Low/Med/High); claim_status 60/25/15 (Paid/Pending/Rejected). Class weighting and threshold tuning are mandatory; recall on High / Rejected is the headline metric.
 4. **Four Phase 1 data-quality findings are now quantified and have a written handling policy** (below): the 0.5h / 500 capture floors (keep + flag), the status<->approved_amount decoupling (analysis-only, both post-outcome), ~5% MCAR missingness on the two billing outcome fields (impute for reporting only), and the temporal inconsistency (~50% billing-before-visit) -> **`visit_date` is the only temporal key**.
@@ -34,7 +35,7 @@ Mutual-information screen of the candidate features against each target (27 fiel
 
 *Model-B feature signal vs claim_status - billed amount is the only signal.*
 
-> **Implication for Phase 3.** Model A cannot beat a stratified baseline on this data; ship it as a calibrated base-rate model and document the ceiling. Model B has a real but narrow signal - a regularised linear model on `billed_amount` + a spline / band term is the honest baseline; gradient boosting will mostly re-learn the band shape.
+> **Implication for Phase 3.** Model A cannot beat a stratified baseline on this data; ship it as a calibrated base-rate model and document the ceiling. Model B has a real but narrow signal - a regularised linear model on `billed_amount` + a band term is the honest baseline; gradient boosting will mostly re-learn the band shape.
 
 ---
 
@@ -83,7 +84,7 @@ Mutual-information screen of the candidate features against each target (27 fiel
 | billed_amount / length_of_stay_hours right-tail outliers (IQR: ~1.5% / ~1.0%) | **keep (winsorise only inside the model pipeline if needed)** | The upper tails are smooth and plausible (max billed 88.5k, max LOS 78h) - real variation, not errors. Keep all rows; if a linear model is sensitive, cap at the 99th percentile inside the Phase 3 ColumnTransformer, not in the source data. |
 | 33 registered patients with zero visits | **keep in patient master / absent from the spine** | Expected - not every registered patient is seen in the window. They do not appear in v_visit_billing so they never reach a model; no action. |
 
-Validators for all of the above live in `data_quality_rules.py` (`validate(df)`, `add_quality_flags(df)`, `apply_training_exclusions(df)`), importable by Phase 3 and the Phase 5/6 request gate.
+Validators for all of the above live in `capstone/data_quality.py` (`validate(df)`, `add_quality_flags(df)`, `apply_training_exclusions(df)`), importable by Phase 3 and the Phase 5/6 request gate.
 
 ---
 
@@ -129,13 +130,13 @@ Validators for all of the above live in `data_quality_rules.py` (`validate(df)`,
 
 ## 4. Feature engineering & leakage register
 
-`feature_spec.yaml` catalogues **43 fields** - 27 eligible for Model A, 34 for Model B - each with a definition, a source, an as-of rule keyed on `visit_date`, a dtype and a per-model leakage verdict. The as-of matrix is materialised at `output/feature_frame.*` (25000 rows x 41 cols).
+`feature_spec.yaml` catalogues **43 fields** - 27 eligible for Model A, 34 for Model B - each with a definition, a source, an as-of rule keyed on `visit_date`, a dtype and a per-model leakage verdict. The as-of matrix is materialised at `output/feature_frame.parquet` (25000 rows x 41 cols).
 
 ![Distribution of visits per patient - supports the patient-history feature block.](output/charts/visits_per_patient.png)
 
 *Distribution of visits per patient - supports the patient-history feature block.*
 
-**Leakage rules (enforced by `run_phase2.py` step 5):**
+**Leakage rules (enforced by `capstone.features.leakage_violations`, run in the notebook):**
 
 - `visit_date` is the sole temporal key. No feature derives from `billing_date` or `registration_date` (including `billing_lag_days`, days-since-registration).
 - No post-outcome field (`approved_amount`, `payment_days`, `claim_status`, `collected/leakage/pending_amount`) feeds Model A or the pre-submission Model B.
