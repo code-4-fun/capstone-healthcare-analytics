@@ -1,0 +1,4 @@
+class,precision,recall,f1,support
+Paid,0.6935,0.3934,0.502,2565
+Pending,0.2838,0.2585,0.2706,1087
+Rejected,0.2198,0.6562,0.3293,608

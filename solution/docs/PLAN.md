@@ -141,7 +141,7 @@ leakage verdict; target distributions and class balance documented.
 
 ---
 
-### Phase 3 — Model Development (Classification)  *(Python / scikit-learn)*
+### Phase 3 — Model Development (Classification)  *(BUILT — see `phase3_models/`)*
 
 **Goal:** two calibrated classifiers, time-validated.
 
@@ -175,7 +175,7 @@ reload and predict from a clean process.
 
 ---
 
-### Phase 4 — Model Evaluation & Explainability
+### Phase 4 — Model Evaluation & Explainability  *(BUILT — see `phase4_eval/`)*
 
 **Goal:** prove the models are interpretable, reliable and safe.
 

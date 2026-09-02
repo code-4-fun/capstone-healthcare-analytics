@@ -13,7 +13,7 @@ Full phased plan: **[`docs/PLAN.md`](docs/PLAN.md)**.
 | 1 | SQL analytics layer (Postgres) | ✅ built — `phase1_sql_analytics/` |
 | 2 | EDA & data quality (Python) | ✅ built — `phase2_eda/` |
 | 3 | Model development (classification) | ✅ built — `phase3_models/` |
-| 4 | Evaluation & explainability | planned |
+| 4 | Evaluation & explainability | ✅ built — `phase4_eval/` |
 | 5 | Deployment & API (FastAPI) | planned |
 | 6 | Monitoring, drift & governance | planned |
 | — | Executive presentation | planned |
@@ -87,6 +87,32 @@ simple-rule baselines on balanced accuracy and macro-F1. Neither beats the
 majority baseline on raw accuracy — the wrong bar for a skewed target. See
 [`phase3_models/README.md`](phase3_models/README.md).
 
+## Run Phase 4
+
+```bash
+uv run python phase4_eval/run_phase4.py   # regenerates + executes phase4_eval/phase4.ipynb
+```
+
+Same notebook-first pattern: `phase4.ipynb` is the deliverable, reusable logic
+lives in `src/capstone/evaluation.py`. It evaluates the **persisted Phase 3
+models as-is** — per-class metrics, confusion, ROC/PR, calibration; then turns
+Model B into an operating decision by sweeping the calibrated `P(Rejected)` and
+picking the threshold that maximises net recoverable denial leakage; explains it
+with permutation importance + SHAP (global and local); verifies the Phase 2
+leakage register **by ablation** (metrics only move when a post-outcome field is
+injected); and checks fairness parity across gender, age band, city and insurer.
+Outputs: `output/` (charts + CSVs), `PHASE4_FINDINGS.md`, and the generated
+`model_card_A.md` / `model_card_B.md`. Rebuilds Phase 3 first if its artefacts
+are missing.
+
+Headline: **Model B is safe to deploy as a pre-submission triage assistant** —
+at the operating threshold it catches ~62% of to-be-rejected claims for ~850
+review alerts a month, ~₹15L/month of recoverable leakage. It is a
+billed-amount model and nothing else — permutation importance, SHAP and the
+ablation all agree. **Model A stays a monitor** — 0% recall on High-risk,
+degenerate by construction. Fairness is within a four-fifths band on all four
+attributes. See [`phase4_eval/README.md`](phase4_eval/README.md).
+
 ## Reporting standard
 
 Every quantitative finding, in every phase, is backed by a chart built with the
@@ -104,11 +130,13 @@ src/capstone/eda.py          Phase 2 profiling + business analyses
 src/capstone/features.py     as-of feature builder + FEATURE_SPEC + leakage register
 src/capstone/data_quality.py reusable data-quality validators
 src/capstone/modeling.py     Phase 3 split / pipelines / training / calibration / persistence
+src/capstone/evaluation.py   Phase 4 metrics / threshold / ablation / SHAP / fairness
 docs/PLAN.md                 phased build plan + Phase 1 findings
 phase1_sql_analytics/        Phase 1 (built, script-based)
 phase2_eda/                  Phase 2 (built, notebook: phase2.ipynb)
 phase3_models/               Phase 3 (built, notebook: phase3.ipynb)
-phase4_eval/ ...             later phases
+phase4_eval/                 Phase 4 (built, notebook: phase4.ipynb)
+phase5_api/ ...              later phases
 ```
 
 ## Configuration
