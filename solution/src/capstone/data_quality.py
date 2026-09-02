@@ -16,7 +16,7 @@ convenience transforms, :func:`apply_training_exclusions` and
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Callable
 
 import numpy as np

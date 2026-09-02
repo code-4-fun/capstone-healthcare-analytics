@@ -20,8 +20,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-HERE = Path(__file__).resolve().parent
-
 SPINE_SQL = "SELECT * FROM v_visit_billing"
 
 # fields that describe the visit outcome / post-submission adjudication and must
@@ -370,10 +368,35 @@ def model_features(f: pd.DataFrame, model: str) -> list[str]:
     return [c for c in f.columns if c in allow]
 
 
-def write_feature_spec_yaml(path: Path | None = None) -> Path:
+# post-outcome / not-yet-known fields that must never reach a model
+_FORBIDDEN = {
+    "approved_amount", "payment_days", "claim_status", "billing_date", "billing_month",
+    "billing_lag_days", "collected_amount", "leakage_amount", "pending_amount",
+    "is_paid", "is_pending", "is_rejected", "registration_date",
+}
+
+
+def leakage_violations(f: pd.DataFrame) -> list[str]:
+    """Return a list of leakage-rule violations for the eligible feature sets of
+    both models. Empty list == clean. Phase 3 calls this before training."""
+    a, b = set(model_features(f, "A")), set(model_features(f, "B"))
+    problems = []
+    for name, cols in (("Model A", a), ("Model B", b)):
+        bad = sorted(cols & _FORBIDDEN)
+        if bad:
+            problems.append(f"{name} exposes forbidden field(s): {bad}")
+    if "risk_score" in a:
+        problems.append("Model A exposes risk_score (its own target)")
+    for field in ("length_of_stay_hours", "billed_amount", "billed_band", "log_billed_amount"):
+        if field in a:
+            problems.append(f"Model A exposes {field} (not known at admission / not operational)")
+    return problems
+
+
+def write_feature_spec_yaml(path: str | Path) -> Path:
     import yaml
 
-    path = path or (HERE / "feature_spec.yaml")
+    path = Path(path)
     doc = {
         "meta": {
             "phase": 2,
@@ -413,7 +436,6 @@ def write_feature_spec_yaml(path: Path | None = None) -> Path:
 if __name__ == "__main__":
     frame = build_feature_frame()
     print(frame.shape)
-    print(frame.dtypes)
     print("\nModel A features:", model_features(frame, "A"))
     print("\nModel B features:", model_features(frame, "B"))
-    print("\nwrote", write_feature_spec_yaml())
+    print("\nwrote", write_feature_spec_yaml("feature_spec.yaml"))

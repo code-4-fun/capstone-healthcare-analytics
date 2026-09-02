@@ -1,23 +1,18 @@
-"""Phase 2 :: profiling + business analyses.
+"""Phase 2 :: profiling + business analyses (reusable).
 
-Every function returns a tidy DataFrame. ``build_all`` runs them, writes each to
-``output/<name>.csv`` and returns the dict for the chart layer and the report.
-Numbers here are the single source of truth for PHASE2_FINDINGS.md.
+Every function returns a tidy DataFrame. :func:`build_all` runs them all and
+returns an ordered ``{name: DataFrame}`` dict (no file writes - the caller
+decides where CSVs land). Numbers here are the single source of truth for
+``PHASE2_FINDINGS.md``.
 """
 from __future__ import annotations
-
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from capstone.db import engine
-
-import data_quality_rules as dq
-import features as feat
-
-HERE = Path(__file__).resolve().parent
-OUT = HERE / "output"
+from capstone import data_quality as dq
+from capstone import features as feat
 
 BILLED_BANDS = [-np.inf, 5000, 15000, 30000, np.inf]
 BILLED_LABELS = ["<5k", "5k-15k", "15k-30k", "30k+"]
@@ -312,10 +307,11 @@ def feature_catalogue() -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-def build_all() -> dict[str, pd.DataFrame]:
-    OUT.mkdir(parents=True, exist_ok=True)
-    spine = load_spine()
-    fframe = feat.build_feature_frame(spine)
+def build_all(spine: pd.DataFrame | None = None,
+              fframe: pd.DataFrame | None = None) -> dict[str, pd.DataFrame]:
+    """Run every analysis and return ``{name: DataFrame}`` (no file writes)."""
+    spine = load_spine() if spine is None else spine
+    fframe = feat.build_feature_frame(spine) if fframe is None else fframe
 
     tables = {
         "column_profile": column_profile(spine),
@@ -340,11 +336,16 @@ def build_all() -> dict[str, pd.DataFrame]:
         "feature_signal": feature_signal(fframe),
         "feature_catalogue": feature_catalogue(),
     }
-    for name, t in tables.items():
-        t.to_csv(OUT / f"{name}.csv", index=False)
-    # persist the as-of feature matrix for Phase 3
-    fframe.to_parquet(OUT / "feature_frame.parquet", index=False)
     return tables
+
+
+def export_tables(tables: dict[str, pd.DataFrame], out_dir) -> None:
+    """Write each table to ``<out_dir>/<name>.csv``."""
+    from pathlib import Path
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    for name, t in tables.items():
+        t.to_csv(out / f"{name}.csv", index=False)
 
 
 if __name__ == "__main__":

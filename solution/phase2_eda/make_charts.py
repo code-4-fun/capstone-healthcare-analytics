@@ -15,7 +15,7 @@ import pandas as pd
 
 from capstone import viz
 
-import analyses
+from capstone import eda
 
 CHART_DIR = Path(__file__).resolve().parent / "output" / "charts"
 SRC = "Source: capstone_solution.v_visit_billing (Phase 2 EDA) - 25,000 visits / claims, 5,000 patients, 2025-01-20 to 2026-01-20."
@@ -25,7 +25,7 @@ _T: dict[str, pd.DataFrame] = {}
 
 def _tables() -> dict[str, pd.DataFrame]:
     if not _T:
-        _T.update(analyses.build_all())
+        _T.update(eda.build_all())
     return _T
 
 
@@ -290,7 +290,7 @@ def chart_missingness_overview() -> tuple[str, Path, str]:
 # data quality: temporal
 # ---------------------------------------------------------------------------
 def chart_temporal_inconsistency() -> tuple[str, Path, str]:
-    spine = analyses.load_spine()
+    spine = eda.load_spine()
     lag = (spine["billing_date"] - spine["visit_date"]).dt.days
     fig, ax = viz.new_figure(9, 4.4)
     ax.hist(lag, bins=60, color=viz.CATEGORICAL[0])
@@ -336,7 +336,7 @@ def chart_date_fields_monthly() -> tuple[str, Path, str]:
 # data quality: floors
 # ---------------------------------------------------------------------------
 def chart_distribution_floors() -> tuple[str, Path, str]:
-    spine = analyses.load_spine()
+    spine = eda.load_spine()
     f = _tables()["floor_analysis"].set_index("field")
     fig, axes = plt.subplots(1, 2, figsize=(9.5, 4.2))
     axes[0].hist(spine["length_of_stay_hours"], bins=60, color=viz.CATEGORICAL[0])
@@ -370,7 +370,7 @@ def chart_los_no_drivers() -> tuple[str, Path, str]:
     labels = {"department": "Department", "visit_type": "Visit type", "risk_score": "Risk band",
               "age_band": "Age band", "chronic_flag": "Chronic flag", "gender": "Gender"}
     order = list(labels)
-    overall = analyses.load_spine()["length_of_stay_hours"].mean()
+    overall = eda.load_spine()["length_of_stay_hours"].mean()
     fig, ax = viz.new_figure(8.5, 4.4)
     for i, dim in enumerate(order):
         sub = d[d["dimension"] == dim]

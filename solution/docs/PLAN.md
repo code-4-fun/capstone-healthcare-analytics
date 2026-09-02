@@ -51,6 +51,11 @@ issues are in **values and timelines**, not links (see Phase 1 findings).
   pre-submission Model B.
 - **Everything reproducible.** One command rebuilds each phase; config lives in
   `.env`; dependencies are locked by `uv`.
+- **Notebooks are the phase artefact from Phase 2 on.** Each phase from Phase 2
+  onward delivers its main artefact and outputs as a Jupyter notebook that runs
+  top-to-bottom and renders its charts/tables inline. Reusable logic lives in
+  `src/capstone/` (adding utility modules there is expected); the notebook stays
+  thin and imports from `capstone`. Phase 1 keeps its script form.
 
 ## 4. Phases
 
@@ -276,8 +281,12 @@ capstone-healthcare-analytics/     # git repo root
 - **Reporting:** every finding is backed by a `capstone.viz` chart; each phase
   emits a `PHASE<n>_FINDINGS.md` organised by theme with charts embedded and the
   supporting numbers in a table appendix.
-- **Reproducibility:** each phase has a single entrypoint script; outputs are
-  regenerated, never hand-edited.
+- **Deliverable format:** from Phase 2 on, each phase's main artefact and its
+  outputs are a Jupyter notebook (runs top-to-bottom, charts/tables inline);
+  reusable logic goes in `src/capstone/`. Phase 1 stays script-based.
+- **Reproducibility:** each phase rebuilds from scratch via its notebook
+  (Phase 2+) or entrypoint script (Phase 1); outputs are regenerated, never
+  hand-edited.
 - **Versioning:** models and feature pipelines carry semantic versions recorded
   in a manifest and echoed in API responses and the prediction log.
 - **Leakage discipline:** the Phase 2 leakage register is the contract; Phase 3

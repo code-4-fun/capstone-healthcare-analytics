@@ -62,13 +62,37 @@ Per-phase pattern: a `make_charts.py` with one function per finding returning
 embeds the images in `PHASE<n>_FINDINGS.md`. Phase 1 is the reference
 implementation (`phase1_sql_analytics/make_charts.py`).
 
+## Deliverable format — Jupyter notebooks from Phase 2 onward
+
+**From Phase 2 onward, the main artefact for each phase and its outputs is a
+Jupyter notebook.** The notebook is what the user reviews: it carries the
+analysis narrative, runs the work, and renders the charts and tables inline.
+Phase 1 (pure SQL + scripts) keeps its existing script form.
+
+- Keep reusable logic — connections, feature builders, chart functions, data
+  validators — in `src/capstone/` (it is fine and expected to add new utility
+  modules there). The notebook imports from `capstone` and stays thin: it
+  orchestrates, explains, and displays.
+- The notebook must run top-to-bottom from a clean kernel and is safe to re-run.
+- `PHASE<n>_FINDINGS.md` and any exported CSVs/PNGs are still produced (a
+  notebook cell can write them), so findings remain verifiable outside the
+  notebook.
+
 ## Reproducibility
 
-- Each phase has one entrypoint (`phase<n>_*/run_*.py`) that rebuilds
-  everything from scratch and is safe to re-run.
+- Each phase rebuilds everything from scratch and is safe to re-run — via its
+  phase notebook (Phase 2+) or its entrypoint script (`phase<n>_*/run_*.py`,
+  Phase 1).
 - Outputs (`output/`, `*_FINDINGS.md`) are generated, never hand-edited.
 - Models and feature pipelines carry a version recorded in a manifest and
   echoed in API responses / the prediction log.
+
+## Git commits
+
+- Keep commit messages **simple** — a short, plain subject line (and a brief
+  body only if it genuinely helps). No ceremony.
+- **Do not add a `Co-Authored-By` trailer** or any other automated attribution
+  footer to commit messages.
 
 ## Leakage discipline
 
