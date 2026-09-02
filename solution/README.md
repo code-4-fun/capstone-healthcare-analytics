@@ -12,7 +12,7 @@ Full phased plan: **[`docs/PLAN.md`](docs/PLAN.md)**.
 |---|---|---|
 | 1 | SQL analytics layer (Postgres) | ✅ built — `phase1_sql_analytics/` |
 | 2 | EDA & data quality (Python) | ✅ built — `phase2_eda/` |
-| 3 | Model development (classification) | planned |
+| 3 | Model development (classification) | ✅ built — `phase3_models/` |
 | 4 | Evaluation & explainability | planned |
 | 5 | Deployment & API (FastAPI) | planned |
 | 6 | Monitoring, drift & governance | planned |
@@ -64,6 +64,29 @@ Model B (claim outcome) is driven almost entirely by `billed_amount` (rejections
 peak non-monotonically in the 15k–30k band). `visit_date` is the only trusted
 temporal key. See [`phase2_eda/README.md`](phase2_eda/README.md).
 
+## Run Phase 3
+
+```bash
+uv run python phase3_models/run_phase3.py   # regenerates + executes phase3_models/phase3.ipynb
+```
+
+Same notebook-first pattern: `phase3.ipynb` is the deliverable, reusable logic
+lives in `src/capstone/modeling.py`. Reads `phase2_eda/output/feature_frame.parquet`,
+splits it on `visit_date` (9 months train / 1 validate / 2 test), and trains two
+models against four candidates each (majority baseline, domain simple-rule
+baseline, logistic regression, gradient-boosted trees), then calibrates the
+selected model (sigmoid, on the validation month) and persists it with a
+versioned `training_manifest.json`. Outputs: `models/`, test predictions +
+metrics in `output/`, 8 house-style charts, and `phase3_models/PHASE3_FINDINGS.md`.
+
+Headline: **Model A ships as a calibrated base-rate monitor** — no candidate
+beats chance on balanced accuracy (Phase 2 predicted this). **Model B (gradient
+boosting) works for pre-submission triage** — it recovers 66% of claims that go
+on to be rejected (vs 0% for a majority classifier) and beats the majority and
+simple-rule baselines on balanced accuracy and macro-F1. Neither beats the
+majority baseline on raw accuracy — the wrong bar for a skewed target. See
+[`phase3_models/README.md`](phase3_models/README.md).
+
 ## Reporting standard
 
 Every quantitative finding, in every phase, is backed by a chart built with the
@@ -80,10 +103,12 @@ src/capstone/viz.py          shared charting house style (all phases)
 src/capstone/eda.py          Phase 2 profiling + business analyses
 src/capstone/features.py     as-of feature builder + FEATURE_SPEC + leakage register
 src/capstone/data_quality.py reusable data-quality validators
+src/capstone/modeling.py     Phase 3 split / pipelines / training / calibration / persistence
 docs/PLAN.md                 phased build plan + Phase 1 findings
 phase1_sql_analytics/        Phase 1 (built, script-based)
 phase2_eda/                  Phase 2 (built, notebook: phase2.ipynb)
-phase3_models/ ...           later phases
+phase3_models/               Phase 3 (built, notebook: phase3.ipynb)
+phase4_eval/ ...             later phases
 ```
 
 ## Configuration
