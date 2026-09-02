@@ -1,0 +1,405 @@
+meta:
+  phase: 2
+  spine: capstone_solution.v_visit_billing
+  temporal_key: visit_date
+  grain: one row per visit
+  models:
+    A: 'visit risk (target: risk_score Low/Medium/High)'
+    B: 'pre-submission claim outcome (target: claim_status Paid/Pending/Rejected)'
+  verdicts:
+    allow: feature may enter this model
+    exclude: must not enter this model (leakage or not-yet-known)
+    target: this field is the model's label
+  hard_rule: no post-outcome field (approved_amount, payment_days, claim_status, billing_date derivatives)
+    feeds Model A or the pre-submission Model B
+features:
+- name: prior_visit_count
+  dtype: int
+  definition: Number of the patient's earlier visits.
+  source: visits (self-join on patient_id)
+  as_of_rule: visits with visit_date strictly < this visit_date
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: Uses only the existence of prior visits, not their outcomes.
+- name: prior_high_risk_count
+  dtype: int
+  definition: Count of the patient's prior visits scored High risk.
+  source: visits.risk_score of prior visits
+  as_of_rule: prior visits only (visit_date <)
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: risk_score of *past* visits is history, not the current label.
+- name: prior_rejection_count
+  dtype: int
+  definition: Count of the patient's prior claims that were Rejected.
+  source: billing.claim_status of prior visits
+  as_of_rule: prior visits only (visit_date <)
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: Assumes prior claims are adjudicated by now; claim_status of the CURRENT visit is never used.
+- name: prior_rejection_rate
+  dtype: float
+  definition: prior_rejection_count / prior_visit_count (NaN if no prior visit).
+  source: derived
+  as_of_rule: prior visits only
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: Patient-level denial propensity.
+- name: days_since_last_visit
+  dtype: float
+  definition: Days between this visit_date and the patient's previous visit_date.
+  source: visits
+  as_of_rule: prior visits only
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: NaN for first visit - impute with a large sentinel or a missing flag.
+- name: is_first_visit
+  dtype: bool
+  definition: True when the patient has no earlier visit.
+  source: derived
+  as_of_rule: prior visits only
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: has_prior_visit
+  dtype: bool
+  definition: Negation of is_first_visit.
+  source: derived
+  as_of_rule: prior visits only
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: department
+  dtype: category
+  definition: Clinical department of the visit.
+  source: visits.department
+  as_of_rule: known at visit time
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: visit_type
+  dtype: category
+  definition: ER / OPD / ICU.
+  source: visits.visit_type
+  as_of_rule: known at visit time
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: age
+  dtype: int
+  definition: Patient age in years.
+  source: patients.age
+  as_of_rule: static patient attribute
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: age_band
+  dtype: category
+  definition: 0-17 / 18-34 / 35-49 / 50-64 / 65+.
+  source: derived from patients.age
+  as_of_rule: static
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: gender
+  dtype: category
+  definition: Patient gender (M/F).
+  source: patients.gender
+  as_of_rule: static
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: Monitor for fairness in Phase 4; not a driver in EDA.
+- name: city
+  dtype: category
+  definition: Patient home city (network has 6).
+  source: patients.city
+  as_of_rule: static
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: chronic_flag
+  dtype: int
+  definition: 1 if the patient is flagged chronic.
+  source: patients.chronic_flag
+  as_of_rule: static (assumed known at visit)
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: doctor_id
+  dtype: category
+  definition: Attending doctor identifier (101 doctors).
+  source: visits.doctor_id
+  as_of_rule: known at visit time
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: High cardinality - target/impact encode or drop in Phase 3.
+- name: doctor_load_30d
+  dtype: int
+  definition: Count of the attending doctor's other visits in the prior 30 days.
+  source: derived from visits
+  as_of_rule: visits with visit_date in [D-30, D-1]
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: Operational load proxy.
+- name: length_of_stay_hours
+  dtype: float
+  definition: Recorded length of stay in hours (floored at 0.5h).
+  source: visits.length_of_stay_hours
+  as_of_rule: known at/after discharge - BEFORE claim submission
+  leakage_verdict:
+    model_a: exclude
+    model_b: allow
+  notes: Model A predicts risk at/around admission, so LOS is not yet known and is excluded. It is known
+    before the claim is filed, so Model B may use it.
+- name: los_at_floor
+  dtype: bool
+  definition: True when length_of_stay_hours == 0.5 (capture floor).
+  source: derived
+  as_of_rule: same as length_of_stay_hours
+  leakage_verdict:
+    model_a: exclude
+    model_b: allow
+  notes: Pairs with length_of_stay_hours.
+- name: billed_amount
+  dtype: float
+  definition: Amount billed on the claim.
+  source: billing.billed_amount
+  as_of_rule: set when the claim is prepared - BEFORE submission/adjudication
+  leakage_verdict:
+    model_a: exclude
+    model_b: allow
+  notes: Not an operational/clinical field, so excluded from Model A. It is the single strongest predictor
+    of claim outcome for Model B.
+- name: log_billed_amount
+  dtype: float
+  definition: log1p(billed_amount).
+  source: derived
+  as_of_rule: same as billed_amount
+  leakage_verdict:
+    model_a: exclude
+    model_b: allow
+  notes: ''
+- name: billed_band
+  dtype: category
+  definition: <5k / 5k-15k / 15k-30k / 30k+.
+  source: derived from billing.billed_amount
+  as_of_rule: same as billed_amount
+  leakage_verdict:
+    model_a: exclude
+    model_b: allow
+  notes: Captures the non-monotonic rejection pattern.
+- name: billed_at_floor
+  dtype: bool
+  definition: True when billed_amount == 500 (capture floor).
+  source: derived
+  as_of_rule: same as billed_amount
+  leakage_verdict:
+    model_a: exclude
+    model_b: allow
+  notes: ''
+- name: insurance_provider
+  dtype: category
+  definition: Claim's insurer (4 providers).
+  source: patients.insurance_provider
+  as_of_rule: static patient attribute
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: Known pre-submission; behaviour is near-identical across the 4 in EDA.
+- name: provider_prior_claim_count
+  dtype: float
+  definition: Number of the insurer's claims from earlier visits.
+  source: derived from billing
+  as_of_rule: visits with visit_date strictly <
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: provider_prior_rejection_rate
+  dtype: float
+  definition: Rejected / total for the insurer over earlier visits (NaN before any).
+  source: derived from billing
+  as_of_rule: visits with visit_date strictly <
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: As-of denial rate of the counterparty; uses only resolved past claims.
+- name: visit_month
+  dtype: category
+  definition: Calendar month of the visit (YYYY-MM).
+  source: derived from visits.visit_date
+  as_of_rule: the visit_date itself
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: month
+  dtype: int
+  definition: Month number 1-12.
+  source: derived from visits.visit_date
+  as_of_rule: the visit_date itself
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: day_of_week
+  dtype: int
+  definition: 0=Mon .. 6=Sun.
+  source: derived from visits.visit_date
+  as_of_rule: the visit_date itself
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: day_name
+  dtype: category
+  definition: Weekday name.
+  source: derived from visits.visit_date
+  as_of_rule: the visit_date itself
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: is_weekend
+  dtype: bool
+  definition: True for Sat/Sun.
+  source: derived from visits.visit_date
+  as_of_rule: the visit_date itself
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: week_of_year
+  dtype: int
+  definition: ISO week number 1-53.
+  source: derived from visits.visit_date
+  as_of_rule: the visit_date itself
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: quarter
+  dtype: int
+  definition: Calendar quarter 1-4.
+  source: derived from visits.visit_date
+  as_of_rule: the visit_date itself
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: day_of_year
+  dtype: int
+  definition: Ordinal day 1-366.
+  source: derived from visits.visit_date
+  as_of_rule: the visit_date itself
+  leakage_verdict:
+    model_a: allow
+    model_b: allow
+  notes: ''
+- name: risk_score
+  dtype: category
+  definition: Clinical risk band assigned to the visit.
+  source: visits.risk_score
+  as_of_rule: POST visit assessment
+  leakage_verdict:
+    model_a: target
+    model_b: allow
+  notes: Target of Model A. Known before the claim is filed, so Model B may use it as an input.
+- name: claim_status
+  dtype: category
+  definition: Adjudication outcome Paid/Pending/Rejected.
+  source: billing.claim_status
+  as_of_rule: POST adjudication
+  leakage_verdict:
+    model_a: exclude
+    model_b: target
+  notes: Target of Model B. Post-outcome for Model A.
+- name: approved_amount
+  dtype: float
+  definition: Amount the insurer approved.
+  source: billing.approved_amount
+  as_of_rule: POST adjudication
+  leakage_verdict:
+    model_a: exclude
+    model_b: exclude
+  notes: Post-outcome. Forbidden for BOTH models. Reporting-only, deterministically imputable from claim_status.
+- name: payment_days
+  dtype: float
+  definition: Days from billing to payment.
+  source: billing.payment_days
+  as_of_rule: POST payment
+  leakage_verdict:
+    model_a: exclude
+    model_b: exclude
+  notes: Post-outcome. Forbidden for BOTH models. Present on ~97% of claims of every status, so not even
+    a clean Paid indicator.
+- name: billing_date
+  dtype: date
+  definition: Recorded claim date.
+  source: billing.billing_date
+  as_of_rule: unreliable - ~50% precede visit_date
+  leakage_verdict:
+    model_a: exclude
+    model_b: exclude
+  notes: Ordering is noise. No feature may be derived from it, including billing_lag_days.
+- name: registration_date
+  dtype: date
+  definition: Recorded patient registration date.
+  source: patients.registration_date
+  as_of_rule: unreliable - ~49% follow the visit
+  leakage_verdict:
+    model_a: exclude
+    model_b: exclude
+  notes: Not a temporal anchor; days-since-registration is forbidden.
+- name: billing_lag_days
+  dtype: int
+  definition: Day difference billing_date - visit_date.
+  source: derived (billing_date - visit_date)
+  as_of_rule: unreliable
+  leakage_verdict:
+    model_a: exclude
+    model_b: exclude
+  notes: Derived from billing_date; pure noise (mean ~1d, sd ~150d).
+- name: collected_amount
+  dtype: float
+  definition: Cash collected (approved value on Paid claims).
+  source: v_visit_billing derived
+  as_of_rule: POST adjudication
+  leakage_verdict:
+    model_a: exclude
+    model_b: exclude
+  notes: Post-outcome. Reporting only.
+- name: leakage_amount
+  dtype: float
+  definition: Billed minus approved on adjudicated claims.
+  source: v_visit_billing derived
+  as_of_rule: POST adjudication
+  leakage_verdict:
+    model_a: exclude
+    model_b: exclude
+  notes: Reporting only.
+- name: pending_amount
+  dtype: float
+  definition: Billed value of Pending claims.
+  source: v_visit_billing derived
+  as_of_rule: POST adjudication
+  leakage_verdict:
+    model_a: exclude
+    model_b: exclude
+  notes: Reporting only.

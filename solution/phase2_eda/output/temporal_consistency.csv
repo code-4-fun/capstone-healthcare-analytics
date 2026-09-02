@@ -1,0 +1,8 @@
+relation,share_pct,n
+billing_date < visit_date,49.56,12389.0
+billing_date == visit_date,0.32,80.0
+billing_date > visit_date,50.12,12531.0
+visit_date < registration_date,48.63,12157.0
+billing_lag_days mean,1.15,
+billing_lag_days std,149.52,
+|billing_lag_days| > 30,83.88,20969.0

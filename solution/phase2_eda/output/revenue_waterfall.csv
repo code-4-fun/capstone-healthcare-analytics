@@ -1,0 +1,5 @@
+component,amount,pct_of_billed
+Billed,521768936.04999995,100.0
+Collected,302266217.1,57.93
+Pending (at risk),127700774.24,24.47
+Denied (leakage),91801944.71000001,17.59
