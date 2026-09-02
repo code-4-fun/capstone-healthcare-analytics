@@ -14,7 +14,7 @@ Full phased plan: **[`docs/PLAN.md`](docs/PLAN.md)**.
 | 2 | EDA & data quality (Python) | ✅ built — `phase2_eda/` |
 | 3 | Model development (classification) | ✅ built — `phase3_models/` |
 | 4 | Evaluation & explainability | ✅ built — `phase4_eval/` |
-| 5 | Deployment & API (FastAPI) | planned |
+| 5 | Deployment & API (FastAPI) | ✅ built — `phase5_api/` |
 | 6 | Monitoring, drift & governance | planned |
 | — | Executive presentation | planned |
 
@@ -113,6 +113,29 @@ ablation all agree. **Model A stays a monitor** — 0% recall on High-risk,
 degenerate by construction. Fairness is within a four-fifths band on all four
 attributes. See [`phase4_eval/README.md`](phase4_eval/README.md).
 
+## Run Phase 5
+
+```bash
+uv run python phase5_api/run_phase5.py            # config + DDL + tests + benchmark + findings
+uv run uvicorn app.main:app --app-dir phase5_api  # serve locally on :8000 (/docs)
+docker compose -f phase5_api/docker-compose.yml up --build   # API + its Postgres
+```
+
+Phase 5 serves the **persisted Phase 3 models** behind FastAPI —
+`POST /predict/claim-outcome` (Model B) and `POST /predict/visit-risk` (Model A,
+a labelled base-rate monitor), plus `/health` and `/model-info`. Requests are
+strictly validated (typed 422s; Model A's schema excludes the billing fields per
+the leakage register); the server assembles features with
+`src/capstone/serving.py`, which reproduces the Phase 3 training-time assembly
+exactly (golden regression, 1e-6). Every response echoes `model_version` /
+`feature_spec_version`; every prediction is appended to
+`capstone_solution.prediction_log` — the Phase 6 drift baseline. The Model B
+operating threshold (`P(Rejected) ≥ 0.19`) is re-derived from the Phase 4
+net-recovery sweep into `serving_config.json`. p95 latency ~32 ms (claim
+outcome) / ~6 ms (visit risk), compute-only. See
+[`phase5_api/README.md`](phase5_api/README.md) and
+[`phase5_api/API.md`](phase5_api/API.md).
+
 ## Reporting standard
 
 Every quantitative finding, in every phase, is backed by a chart built with the
@@ -131,12 +154,14 @@ src/capstone/features.py     as-of feature builder + FEATURE_SPEC + leakage regi
 src/capstone/data_quality.py reusable data-quality validators
 src/capstone/modeling.py     Phase 3 split / pipelines / training / calibration / persistence
 src/capstone/evaluation.py   Phase 4 metrics / threshold / ablation / SHAP / fairness
+src/capstone/serving.py      Phase 5 serving bundle + request->feature assembly
 docs/PLAN.md                 phased build plan + Phase 1 findings
 phase1_sql_analytics/        Phase 1 (built, script-based)
 phase2_eda/                  Phase 2 (built, notebook: phase2.ipynb)
 phase3_models/               Phase 3 (built, notebook: phase3.ipynb)
 phase4_eval/                 Phase 4 (built, notebook: phase4.ipynb)
-phase5_api/ ...              later phases
+phase5_api/                  Phase 5 (built, FastAPI service: app/, Dockerfile, tests/)
+phase6_monitoring/ ...       later phases
 ```
 
 ## Configuration

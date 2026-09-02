@@ -1,0 +1,45 @@
+# Phase 5 - the prediction API alongside its Postgres prediction log.
+#
+#   docker compose -f phase5_api/docker-compose.yml up --build
+#
+# Serves both models on http://localhost:8000 (/docs for the UI). The API works
+# without any analytics data loaded - only the prediction log needs Postgres.
+# To populate the analytics layer too, run Phase 1's load against this database.
+
+name: capstone-phase5
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: capstone_hospital_analytics
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5433:5432"   # 5433 on the host to avoid clashing with a local Postgres
+    volumes:
+      - capstone_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d capstone_hospital_analytics"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ..
+      dockerfile: phase5_api/Dockerfile
+    environment:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: postgres
+      PGDATABASE: capstone_hospital_analytics
+      CAPSTONE_SCHEMA: capstone_solution
+      API_LOG_PREDICTIONS: "true"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  capstone_pgdata:

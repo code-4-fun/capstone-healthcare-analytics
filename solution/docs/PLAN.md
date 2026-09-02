@@ -200,7 +200,7 @@ signed-off; fairness gaps quantified; model cards complete.
 
 ---
 
-### Phase 5 — Deployment & API Integration (MLOps)  *(FastAPI)*
+### Phase 5 — Deployment & API Integration (MLOps)  *(BUILT — see `phase5_api/`)*
 
 **Goal:** production-ready services, not more accuracy.
 
@@ -208,20 +208,31 @@ signed-off; fairness gaps quantified; model cards complete.
 - FastAPI app, one endpoint per model: `POST /predict/visit-risk`,
   `POST /predict/claim-outcome`; plus `/health`, `/model-info`.
 - Pydantic request/response schemas mirroring the `feature_spec`; strict
-  validation and typed errors.
+  validation and typed errors. **Hybrid request shape:** callers send the
+  business-known fields, the server derives the trivial transforms and defaults
+  the as-of history aggregates to a no-history profile (listed in
+  `defaults_applied`). Model A's schema excludes the billing/LOS/`risk_score`
+  fields — the leakage register enforced at the edge.
 - Load versioned artefacts at startup; embed model + data version in every
-  response.
-- **Prediction log** — persist every request, response, model version,
-  latency and timestamp to Postgres (`capstone_solution.prediction_log`).
-- Containerised (`Dockerfile`), config via env, `docker compose` alongside the
-  existing Postgres.
-- Tests: schema validation, golden-prediction regression, contract tests.
+  response. `serving_config.json` carries the versions and Model B's operating
+  threshold (re-derived from the Phase 4 net-recovery sweep).
+- **Prediction log** — every request/response/version/latency to Postgres
+  `capstone_solution.prediction_log` (append-only; best-effort so a DB outage
+  never fails a prediction).
+- Model A **exposed but labelled** — every response and `/model-info` carry the
+  base-rate-monitor notice from `model_card_A.md`.
+- Containerised (`Dockerfile`), config via env, `docker compose` (API + its
+  Postgres). Reusable serving logic in `src/capstone/serving.py`.
+- Tests: schema validation, golden-prediction regression (serving path
+  reproduces Phase 3 to 1e-6), contract tests, prediction-log tests.
 
-**Deliverables:** `phase5_api/` — app, Dockerfile, compose fragment, API docs,
-tests.
+**Deliverables:** `phase5_api/` — app (`app/`), `Dockerfile`, `docker-compose.yml`,
+`README.md` + `API.md` + `openapi.json`, `sql/prediction_log.sql`, `tests/`,
+`run_phase5.py`, `PHASE5_FINDINGS.md`.
 
-**Exit criteria:** `docker compose up` serves both models; invalid payloads
-rejected cleanly; predictions logged with version metadata; p95 latency noted.
+**Exit criteria:** `docker compose up` serves both models ✓; invalid payloads
+rejected cleanly (typed 422) ✓; predictions logged with version metadata ✓;
+p95 latency noted (claim-outcome ~22 ms, visit-risk ~6 ms, compute-only) ✓.
 
 ---
 
