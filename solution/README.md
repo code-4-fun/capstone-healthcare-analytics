@@ -11,7 +11,7 @@ Full phased plan: **[`docs/PLAN.md`](docs/PLAN.md)**.
 | Phase | Scope | State |
 |---|---|---|
 | 1 | SQL analytics layer (Postgres) | ✅ built — `phase1_sql_analytics/` |
-| 2 | EDA & data quality (Python) | planned |
+| 2 | EDA & data quality (Python) | ✅ built — `phase2_eda/` |
 | 3 | Model development (classification) | planned |
 | 4 | Evaluation & explainability | planned |
 | 5 | Deployment & API (FastAPI) | planned |
@@ -43,6 +43,24 @@ chart; supporting tables in an appendix).
 
 See [`phase1_sql_analytics/README.md`](phase1_sql_analytics/README.md).
 
+## Run Phase 2
+
+```bash
+uv run python phase2_eda/run_phase2.py
+```
+
+Reads `v_visit_billing` into pandas and produces modelling-readiness artefacts:
+profiling + business-analysis CSVs → `feature_spec.yaml` (feature catalogue +
+per-model leakage register) → `data_quality_rules.py` validators →
+`output/feature_frame.parquet` (as-of feature matrix) → a leakage self-check → 19
+C-suite charts → `phase2_eda/PHASE2_FINDINGS.md`. Idempotent; rebuilds the Phase 1
+layer first if it is unreachable.
+
+Headline: Model A (visit risk) has no learnable signal in the available data;
+Model B (claim outcome) is driven almost entirely by `billed_amount` (rejections
+peak non-monotonically in the 15k–30k band). `visit_date` is the only trusted
+temporal key. See [`phase2_eda/README.md`](phase2_eda/README.md).
+
 ## Reporting standard
 
 Every quantitative finding, in every phase, is backed by a chart built with the
@@ -58,7 +76,8 @@ src/capstone/db.py        shared Postgres connection / SQLAlchemy engine (reads 
 src/capstone/viz.py       shared charting house style (all phases)
 docs/PLAN.md              phased build plan + Phase 1 findings
 phase1_sql_analytics/     Phase 1 (built)
-phase2_eda/ ...           later phases
+phase2_eda/               Phase 2 (built)
+phase3_models/ ...        later phases
 ```
 
 ## Configuration

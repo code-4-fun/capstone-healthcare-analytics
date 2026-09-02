@@ -1,0 +1,44 @@
+feature,dtype,source,definition,as_of_rule,model_a_verdict,model_b_verdict,notes
+prior_visit_count,int,visits (self-join on patient_id),Number of the patient's earlier visits.,visits with visit_date strictly < this visit_date,allow,allow,"Uses only the existence of prior visits, not their outcomes."
+prior_high_risk_count,int,visits.risk_score of prior visits,Count of the patient's prior visits scored High risk.,prior visits only (visit_date <),allow,allow,"risk_score of *past* visits is history, not the current label."
+prior_rejection_count,int,billing.claim_status of prior visits,Count of the patient's prior claims that were Rejected.,prior visits only (visit_date <),allow,allow,Assumes prior claims are adjudicated by now; claim_status of the CURRENT visit is never used.
+prior_rejection_rate,float,derived,prior_rejection_count / prior_visit_count (NaN if no prior visit).,prior visits only,allow,allow,Patient-level denial propensity.
+days_since_last_visit,float,visits,Days between this visit_date and the patient's previous visit_date.,prior visits only,allow,allow,NaN for first visit - impute with a large sentinel or a missing flag.
+is_first_visit,bool,derived,True when the patient has no earlier visit.,prior visits only,allow,allow,
+has_prior_visit,bool,derived,Negation of is_first_visit.,prior visits only,allow,allow,
+department,category,visits.department,Clinical department of the visit.,known at visit time,allow,allow,
+visit_type,category,visits.visit_type,ER / OPD / ICU.,known at visit time,allow,allow,
+age,int,patients.age,Patient age in years.,static patient attribute,allow,allow,
+age_band,category,derived from patients.age,0-17 / 18-34 / 35-49 / 50-64 / 65+.,static,allow,allow,
+gender,category,patients.gender,Patient gender (M/F).,static,allow,allow,Monitor for fairness in Phase 4; not a driver in EDA.
+city,category,patients.city,Patient home city (network has 6).,static,allow,allow,
+chronic_flag,int,patients.chronic_flag,1 if the patient is flagged chronic.,static (assumed known at visit),allow,allow,
+doctor_id,category,visits.doctor_id,Attending doctor identifier (101 doctors).,known at visit time,allow,allow,High cardinality - target/impact encode or drop in Phase 3.
+doctor_load_30d,int,derived from visits,Count of the attending doctor's other visits in the prior 30 days.,"visits with visit_date in [D-30, D-1]",allow,allow,Operational load proxy.
+length_of_stay_hours,float,visits.length_of_stay_hours,Recorded length of stay in hours (floored at 0.5h).,known at/after discharge - BEFORE claim submission,exclude,allow,"Model A predicts risk at/around admission, so LOS is not yet known and is excluded. It is known before the claim is filed, so Model B may use it."
+los_at_floor,bool,derived,True when length_of_stay_hours == 0.5 (capture floor).,same as length_of_stay_hours,exclude,allow,Pairs with length_of_stay_hours.
+billed_amount,float,billing.billed_amount,Amount billed on the claim.,set when the claim is prepared - BEFORE submission/adjudication,exclude,allow,"Not an operational/clinical field, so excluded from Model A. It is the single strongest predictor of claim outcome for Model B."
+log_billed_amount,float,derived,log1p(billed_amount).,same as billed_amount,exclude,allow,
+billed_band,category,derived from billing.billed_amount,<5k / 5k-15k / 15k-30k / 30k+.,same as billed_amount,exclude,allow,Captures the non-monotonic rejection pattern.
+billed_at_floor,bool,derived,True when billed_amount == 500 (capture floor).,same as billed_amount,exclude,allow,
+insurance_provider,category,patients.insurance_provider,Claim's insurer (4 providers).,static patient attribute,allow,allow,Known pre-submission; behaviour is near-identical across the 4 in EDA.
+provider_prior_claim_count,float,derived from billing,Number of the insurer's claims from earlier visits.,visits with visit_date strictly <,allow,allow,
+provider_prior_rejection_rate,float,derived from billing,Rejected / total for the insurer over earlier visits (NaN before any).,visits with visit_date strictly <,allow,allow,As-of denial rate of the counterparty; uses only resolved past claims.
+visit_month,category,derived from visits.visit_date,Calendar month of the visit (YYYY-MM).,the visit_date itself,allow,allow,
+month,int,derived from visits.visit_date,Month number 1-12.,the visit_date itself,allow,allow,
+day_of_week,int,derived from visits.visit_date,0=Mon .. 6=Sun.,the visit_date itself,allow,allow,
+day_name,category,derived from visits.visit_date,Weekday name.,the visit_date itself,allow,allow,
+is_weekend,bool,derived from visits.visit_date,True for Sat/Sun.,the visit_date itself,allow,allow,
+week_of_year,int,derived from visits.visit_date,ISO week number 1-53.,the visit_date itself,allow,allow,
+quarter,int,derived from visits.visit_date,Calendar quarter 1-4.,the visit_date itself,allow,allow,
+day_of_year,int,derived from visits.visit_date,Ordinal day 1-366.,the visit_date itself,allow,allow,
+risk_score,category,visits.risk_score,Clinical risk band assigned to the visit.,POST visit assessment,target,allow,"Target of Model A. Known before the claim is filed, so Model B may use it as an input."
+claim_status,category,billing.claim_status,Adjudication outcome Paid/Pending/Rejected.,POST adjudication,exclude,target,Target of Model B. Post-outcome for Model A.
+approved_amount,float,billing.approved_amount,Amount the insurer approved.,POST adjudication,exclude,exclude,"Post-outcome. Forbidden for BOTH models. Reporting-only, deterministically imputable from claim_status."
+payment_days,float,billing.payment_days,Days from billing to payment.,POST payment,exclude,exclude,"Post-outcome. Forbidden for BOTH models. Present on ~97% of claims of every status, so not even a clean Paid indicator."
+billing_date,date,billing.billing_date,Recorded claim date.,unreliable - ~50% precede visit_date,exclude,exclude,"Ordering is noise. No feature may be derived from it, including billing_lag_days."
+registration_date,date,patients.registration_date,Recorded patient registration date.,unreliable - ~49% follow the visit,exclude,exclude,Not a temporal anchor; days-since-registration is forbidden.
+billing_lag_days,int,derived (billing_date - visit_date),Day difference billing_date - visit_date.,unreliable,exclude,exclude,"Derived from billing_date; pure noise (mean ~1d, sd ~150d)."
+collected_amount,float,v_visit_billing derived,Cash collected (approved value on Paid claims).,POST adjudication,exclude,exclude,Post-outcome. Reporting only.
+leakage_amount,float,v_visit_billing derived,Billed minus approved on adjudicated claims.,POST adjudication,exclude,exclude,Reporting only.
+pending_amount,float,v_visit_billing derived,Billed value of Pending claims.,POST adjudication,exclude,exclude,Reporting only.

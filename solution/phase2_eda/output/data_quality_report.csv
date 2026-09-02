@@ -1,0 +1,23 @@
+rule,severity,scope,handling,records_flagged,records_total,pct_flagged,applicable,description
+paid_missing_approved,ERROR,billing,impute,817,25000,3.268,True,Paid claim with no approved_amount
+gender_enum,ERROR,patient,exclude,0,25000,0.0,True,"gender outside {M,F}"
+visit_type_enum,ERROR,visit,exclude,0,25000,0.0,True,"visit_type outside {ER,OPD,ICU}"
+risk_score_enum,ERROR,visit,exclude,0,25000,0.0,True,"risk_score outside {Low,Medium,High}"
+claim_status_enum,ERROR,billing,exclude,0,25000,0.0,True,"claim_status outside {Paid,Pending,Rejected}"
+age_range,ERROR,patient,exclude,0,25000,0.0,True,"age outside [0, 120]"
+los_negative,ERROR,visit,exclude,0,25000,0.0,True,length_of_stay_hours < 0
+billed_negative,ERROR,billing,exclude,0,25000,0.0,True,billed_amount < 0
+approved_exceeds_billed,ERROR,billing,exclude,0,25000,0.0,True,approved_amount > billed_amount
+approved_negative,ERROR,billing,exclude,0,25000,0.0,True,approved_amount < 0
+rejected_with_approved,ERROR,billing,review,0,25000,0.0,True,Rejected claim that still carries a positive approved_amount
+billing_before_visit,WARN,billing+visit,keep,12389,25000,49.556,True,billing_date precedes visit_date - date ordering is unreliable
+visit_before_registration,WARN,visit+patient,keep,12157,25000,48.628,True,visit_date precedes registration_date - registration_date is not a temporal anchor
+paid_missing_payment_days,WARN,billing,impute,459,25000,1.836,True,Paid claim with no payment_days
+department_enum,WARN,visit,review,0,25000,0.0,True,department not in the known set
+city_enum,WARN,patient,review,0,25000,0.0,True,city not in the known set
+provider_enum,WARN,patient,review,0,25000,0.0,True,insurance_provider not in the known set
+payment_days_negative,WARN,billing,impute,0,25000,0.0,True,payment_days < 0
+pending_with_approved,INFO,billing,flag,5962,25000,23.848,True,Pending claim that already carries an approved_amount (pre-adjudication value)
+rejected_with_payment_days,INFO,billing,flag,3674,25000,14.696,True,Rejected claim that carries payment_days (payment_days is not tied to Paid)
+los_at_floor,INFO,visit,flag,300,25000,1.2,True,length_of_stay_hours pinned at the 0.5h capture floor
+billed_at_floor,INFO,billing,flag,243,25000,0.972,True,billed_amount pinned at the 500 capture floor

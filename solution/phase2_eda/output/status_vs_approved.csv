@@ -1,0 +1,4 @@
+claim_status,claims,approved_present,approved_missing,payment_days_present,approved_missing_pct,payment_days_present_pct,approved_ratio_mean,approved_ratio_std,approved_ratio_min,approved_ratio_max
+Paid,14940,14123,817,14481,5.47,96.93,1.0,0.0,1.0,1.0
+Pending,6263,5962,301,6055,4.81,96.68,0.7,0.115,0.5,0.9
+Rejected,3797,3597,200,3674,5.27,96.76,0.0,0.0,0.0,0.0
