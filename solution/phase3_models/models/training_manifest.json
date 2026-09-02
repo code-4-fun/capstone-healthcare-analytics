@@ -1,0 +1,185 @@
+{
+  "phase": 3,
+  "model_version": "1.0.0",
+  "feature_spec_version": 2,
+  "generated": "2026-09-02T02:12:56+00:00",
+  "temporal_key": "visit_date",
+  "data_window": {
+    "start": "2025-01-20",
+    "end": "2026-01-20",
+    "rows": 25000,
+    "split": "9 months train / 1 validate / 2 test, calendar-anchored on visit_date"
+  },
+  "feature_frame": {
+    "source": "phase2_eda/output/feature_frame.parquet",
+    "rows": 25000,
+    "modified": "2026-09-02T00:28:51.286980152"
+  },
+  "environment": {
+    "python": "3.12.13",
+    "scikit_learn": "1.9.0"
+  },
+  "models": {
+    "A": {
+      "target": "risk_score",
+      "classes": [
+        "Low",
+        "Medium",
+        "High"
+      ],
+      "chosen_estimator": "majority",
+      "calibration_method": "sigmoid",
+      "n_features": 22,
+      "numeric_features": [
+        "prior_visit_count",
+        "prior_high_risk_count",
+        "prior_rejection_count",
+        "days_since_last_visit",
+        "prior_rejection_rate",
+        "age",
+        "chronic_flag",
+        "doctor_load_30d",
+        "provider_prior_claim_count",
+        "provider_prior_rejection_rate",
+        "month",
+        "day_of_week",
+        "week_of_year"
+      ],
+      "categorical_features": [
+        "is_first_visit",
+        "has_prior_visit",
+        "department",
+        "visit_type",
+        "age_band",
+        "gender",
+        "city",
+        "insurance_provider",
+        "is_weekend"
+      ],
+      "split_accuracy": {
+        "train": 0.5009911599249933,
+        "val": 0.48240963855421687,
+        "test": 0.4971830985915493
+      },
+      "candidate_metrics": {
+        "majority": {
+          "accuracy": 0.4972,
+          "balanced_accuracy": 0.3333,
+          "macro_f1": 0.2214,
+          "recall_high": 0.0
+        },
+        "simple_rule": {
+          "accuracy": 0.4972,
+          "balanced_accuracy": 0.3333,
+          "macro_f1": 0.2214,
+          "recall_high": 0.0
+        },
+        "logreg": {
+          "accuracy": 0.3805,
+          "balanced_accuracy": 0.3268,
+          "macro_f1": 0.3253,
+          "recall_high": 0.2063
+        },
+        "gbm": {
+          "accuracy": 0.2547,
+          "balanced_accuracy": 0.3261,
+          "macro_f1": 0.2497,
+          "recall_high": 0.6083
+        }
+      },
+      "beats_majority_accuracy": false,
+      "beats_majority_balanced_accuracy": false,
+      "beats_simple_rule_macro_f1": false,
+      "costly_class": "High",
+      "costly_class_recall": 0.0,
+      "costly_class_recall_majority_baseline": 0.0
+    },
+    "B": {
+      "target": "claim_status",
+      "classes": [
+        "Paid",
+        "Pending",
+        "Rejected"
+      ],
+      "chosen_estimator": "gbm",
+      "calibration_method": "sigmoid",
+      "n_features": 29,
+      "numeric_features": [
+        "prior_visit_count",
+        "prior_high_risk_count",
+        "prior_rejection_count",
+        "days_since_last_visit",
+        "prior_rejection_rate",
+        "age",
+        "chronic_flag",
+        "doctor_load_30d",
+        "length_of_stay_hours",
+        "billed_amount",
+        "log_billed_amount",
+        "provider_prior_claim_count",
+        "provider_prior_rejection_rate",
+        "month",
+        "day_of_week",
+        "week_of_year"
+      ],
+      "categorical_features": [
+        "is_first_visit",
+        "has_prior_visit",
+        "department",
+        "visit_type",
+        "age_band",
+        "gender",
+        "city",
+        "los_at_floor",
+        "risk_score",
+        "billed_band",
+        "billed_at_floor",
+        "insurance_provider",
+        "is_weekend"
+      ],
+      "split_accuracy": {
+        "train": 0.42019823198499867,
+        "val": 0.38072289156626504,
+        "test": 0.39647887323943665
+      },
+      "candidate_metrics": {
+        "majority": {
+          "accuracy": 0.6021,
+          "balanced_accuracy": 0.3333,
+          "macro_f1": 0.2505,
+          "recall_rejected": 0.0
+        },
+        "simple_rule": {
+          "accuracy": 0.4681,
+          "balanced_accuracy": 0.4156,
+          "macro_f1": 0.3185,
+          "recall_rejected": 0.6151
+        },
+        "logreg": {
+          "accuracy": 0.3446,
+          "balanced_accuracy": 0.3915,
+          "macro_f1": 0.3356,
+          "recall_rejected": 0.4062
+        },
+        "gbm": {
+          "accuracy": 0.3965,
+          "balanced_accuracy": 0.436,
+          "macro_f1": 0.3673,
+          "recall_rejected": 0.6562
+        }
+      },
+      "beats_majority_accuracy": false,
+      "beats_majority_balanced_accuracy": true,
+      "beats_simple_rule_macro_f1": true,
+      "costly_class": "Rejected",
+      "costly_class_recall": 0.6562,
+      "costly_class_recall_majority_baseline": 0.0
+    }
+  },
+  "artifacts": {
+    "model_a": "model_a.joblib",
+    "model_a_calibrated": "model_a_calibrated.joblib",
+    "model_b": "model_b.joblib",
+    "model_b_calibrated": "model_b_calibrated.joblib"
+  }
+}

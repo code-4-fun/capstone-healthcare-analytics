@@ -149,6 +149,43 @@ def label_bars(ax, bars, values, *, fmt="{:.0f}", horizontal=False, inside=False
                     fontweight="bold" if inside else "normal")
 
 
+def heatmap(ax, matrix, row_labels, col_labels, *, fmt="{:.0f}",
+            normalize_rows=True, cbar_label=None):
+    """House-style heatmap (e.g. a confusion matrix).
+
+    Shading uses ``SEQUENTIAL_BLUE`` on the row-normalised values so the colour
+    encodes *rate* while the printed annotation keeps the raw count. Every cell
+    is labelled (the grid/annotation, not colour, carries the number).
+    """
+    import numpy as np
+    from matplotlib.colors import LinearSegmentedColormap
+
+    m = np.asarray(matrix, dtype=float)
+    shade = m / m.sum(axis=1, keepdims=True).clip(min=1) if normalize_rows else m / m.max().clip(min=1)
+    cmap = LinearSegmentedColormap.from_list("seq_blue", SEQUENTIAL_BLUE)
+    im = ax.imshow(shade, cmap=cmap, vmin=0, vmax=1, aspect="auto")
+
+    ax.set_xticks(range(len(col_labels)), labels=col_labels)
+    ax.set_yticks(range(len(row_labels)), labels=row_labels)
+    ax.tick_params(top=False, bottom=True, left=True, right=False, length=0)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    ax.grid(False)
+    ax.set_xticks(np.arange(-0.5, len(col_labels), 1), minor=True)
+    ax.set_yticks(np.arange(-0.5, len(row_labels), 1), minor=True)
+    ax.grid(which="minor", color=SURFACE, linewidth=2)
+
+    for i in range(m.shape[0]):
+        for j in range(m.shape[1]):
+            ax.text(j, i, fmt.format(m[i, j]), ha="center", va="center", fontsize=9,
+                    color="white" if shade[i, j] > 0.55 else INK)
+    if cbar_label:
+        cb = ax.figure.colorbar(im, ax=ax, fraction=0.045, pad=0.03)
+        cb.set_label(cbar_label, color=INK_SECONDARY, fontsize=8)
+        cb.ax.tick_params(labelsize=7, color=INK_MUTED)
+    return im
+
+
 def money(value: float) -> str:
     """Compact currency label (data is in INR-like units)."""
     for unit, div in (("Cr", 1e7), ("L", 1e5), ("K", 1e3)):

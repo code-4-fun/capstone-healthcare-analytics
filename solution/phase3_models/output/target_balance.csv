@@ -1,0 +1,7 @@
+model,class,train_pct,test_pct
+A,Low,50.1,49.7
+A,Medium,29.9,30.0
+A,High,20.0,20.3
+B,Paid,59.7,60.2
+B,Pending,25.0,25.5
+B,Rejected,15.3,14.3
