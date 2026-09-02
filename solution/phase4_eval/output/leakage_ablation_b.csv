@@ -1,0 +1,8 @@
+variant,is_leak,n_features,accuracy,balanced_accuracy,macro_f1,recall_rejected
+clean (shipped),False,29,0.3965,0.436,0.3673,0.6562
+- risk_score,False,28,0.3977,0.4347,0.3666,0.6546
+- provider history,False,27,0.3974,0.4311,0.3629,0.6562
+- patient history,False,22,0.3885,0.4345,0.3661,0.6398
+- billed_amount,False,26,0.362,0.3421,0.3129,0.148
+LEAK + approved_amount,True,30,0.9634,0.9563,0.9607,0.9572
+LEAK + payment_days,True,30,0.5387,0.4929,0.4627,0.5362
