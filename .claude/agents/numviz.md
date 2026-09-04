@@ -44,10 +44,11 @@ that carry every finding.
 - **Package manager is `uv`.** Add deps with `uv add`, run code with
   `uv run python ...` / `uv run jupyter ...`. Never call `pip` or hand-edit
   `pyproject.toml` dependencies.
-- Postgres runs in Docker (container `capstone-project-postgres`, port 5432,
-  trust auth). Work goes in database `capstone_hospital_analytics`, schema
-  `capstone_solution`. Read connection config through `capstone.db.SETTINGS` /
-  `connect()` / `engine()` — never hard-code credentials.
+- Postgres is self-managed via `docker compose up -d` (solution root), which
+  starts Postgres (port 5432, trust auth) and bootstraps the Phase 1 DDL. Work
+  goes in database `capstone_hospital_analytics`, schema `capstone_solution`.
+  Read connection config through `capstone.db.SETTINGS` / `connect()` /
+  `engine()` — never hard-code credentials.
 - Schema and identifier names are `snake_case` — no hyphens.
 
 ## Deliverable format — Jupyter notebooks from Phase 2 onward

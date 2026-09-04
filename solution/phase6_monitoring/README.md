@@ -8,7 +8,7 @@ dashboard, and the governance documents.
 ## Run
 
 ```bash
-docker start capstone-project-postgres
+docker compose up -d          # starts + bootstraps Postgres (../docker-compose.yml)
 uv run python phase6_monitoring/run_phase6.py     # DDL + notebook + drift runs + tests
 ```
 

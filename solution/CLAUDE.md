@@ -22,11 +22,12 @@ against this file before signalling OKAY for commit & push.
 
 - **Package manager is `uv`.** Add deps with `uv add`, run code with
   `uv run python ...`. Never call `pip` or edit `pyproject.toml` deps by hand.
-- Postgres runs in Docker (container `capstone-project-postgres`, port 5432,
-  trust auth). All work goes in database `capstone_hospital_analytics`,
-  schema `capstone_solution`. Connection config is in `.env`; read it through
-  `capstone.db.SETTINGS` / `connect()` / `engine()` — do not hard-code
-  credentials.
+- Postgres is self-managed by this repo: `docker compose up -d` (solution
+  root) starts a Postgres container (port 5432, trust auth) and bootstraps it
+  with the Phase 1 DDL — no externally-maintained container required. All work
+  goes in database `capstone_hospital_analytics`, schema `capstone_solution`.
+  Connection config is in `.env`; read it through `capstone.db.SETTINGS` /
+  `connect()` / `engine()` — do not hard-code credentials.
 - Schema/identifier names use `snake_case` (no hyphens — hyphenated identifiers
   need quoting everywhere in Postgres).
 

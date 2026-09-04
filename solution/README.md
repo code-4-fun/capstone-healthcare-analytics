@@ -20,14 +20,23 @@ Full phased plan: **[`docs/PLAN.md`](docs/PLAN.md)**.
 
 ## Setup
 
-Requires [`uv`](https://docs.astral.sh/uv/) and the Docker Postgres container
-(`capstone-project-postgres`, port 5432, trust auth).
+Requires [`uv`](https://docs.astral.sh/uv/) and Docker. Postgres is entirely
+self-managed by this repo — `docker-compose.yml` at the solution root starts a
+fresh, empty Postgres container and bootstraps it with the Phase 1 DDL (schema,
+tables, typed load, indexes, views, data-quality checks), so Phase 1-3 work
+out of the box with no externally-maintained database.
 
 ```bash
 uv sync
-cp .env.example .env        # defaults already match the docker Postgres
-docker start capstone-project-postgres
+cp .env.example .env        # defaults already match the compose Postgres
+docker compose up -d        # starts postgres, then bootstraps the Phase 1 DDL
 ```
+
+`docker compose logs bootstrap` shows the bootstrap step; it's idempotent
+(`docker compose up bootstrap` re-runs it any time). Phase 2/3's own runners
+also rebuild this layer automatically if it's ever unreachable, so this is a
+convenience, not a hard dependency — but it means a clean checkout needs
+nothing installed or configured outside this repo to run Phases 1-3.
 
 ## Run Phase 1
 
@@ -35,7 +44,10 @@ docker start capstone-project-postgres
 uv run python phase1_sql_analytics/run_phase1.py
 ```
 
-Builds schema `capstone_solution` in database `capstone_hospital_analytics`:
+`docker compose up -d` (above) already applies this layer's DDL via the
+`bootstrap` service; `run_phase1.py` is the same DDL plus the full reporting
+pipeline (CSV exports, charts, findings) and is always safe to (re-)run
+locally. Builds schema `capstone_solution` in database `capstone_hospital_analytics`:
 typed constrained tables → validated load → indexes → 10 BI views →
 data-quality report → CSV exports → 10 C-suite charts →
 `phase1_sql_analytics/PHASE1_FINDINGS.md` (findings by theme, each with its
@@ -185,7 +197,8 @@ src/capstone/evaluation.py   Phase 4 metrics / threshold / ablation / SHAP / fai
 src/capstone/serving.py      Phase 5 serving bundle + request->feature assembly
 src/capstone/monitoring.py   Phase 6 PSI/KS drift, validation gate, drift run
 docs/PLAN.md                 phased build plan + Phase 1 findings
-phase1_sql_analytics/        Phase 1 (built, script-based)
+docker-compose.yml           self-managed Postgres + Phase 1 DDL bootstrap (Phases 1-3)
+phase1_sql_analytics/        Phase 1 (built, script-based; bootstrap_db.py + Dockerfile for compose)
 phase2_eda/                  Phase 2 (built, notebook: phase2.ipynb)
 phase3_models/               Phase 3 (built, notebook: phase3.ipynb)
 phase4_eval/                 Phase 4 (built, notebook: phase4.ipynb)

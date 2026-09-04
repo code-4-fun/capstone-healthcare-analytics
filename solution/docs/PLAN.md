@@ -92,6 +92,9 @@ Postgres schema `capstone_solution`.
 - `run_phase1.py` — one-command rebuild + CSV exports + charts +
   `PHASE1_FINDINGS.md` (findings organised by theme, each with its chart embedded
   and supporting tables in an appendix).
+- `docker-compose.yml` (solution root) + `bootstrap_db.py` / `Dockerfile` — a
+  self-managed Postgres container + a one-shot bootstrap of exactly this DDL,
+  so Phases 1-3 need nothing outside this repo (`docker compose up -d`).
 
 **Key findings handed to Phase 2**
 - Revenue: 521.8M billed → 302.3M collected (57.9% realization), 91.8M denial
@@ -106,7 +109,9 @@ Postgres schema `capstone_solution`.
   ~49% visit-before-registration) → treat dates as approximate.
 
 **Exit criteria:** all views materialise, `run_phase1.py` is idempotent, DQ
-report reviewed, 0 unexplained ERROR-level checks.
+report reviewed, 0 unexplained ERROR-level checks; `docker compose up -d`
+alone brings up a working, DDL-bootstrapped Postgres with no externally-set-up
+container.
 
 ---
 

@@ -14,7 +14,7 @@ stays thin and imports it.
 ```bash
 # from solution/
 uv sync
-docker start capstone-project-postgres
+docker compose up -d          # starts + bootstraps the Phase 1 layer (../docker-compose.yml)
 
 # headless: regenerate + execute the notebook and all outputs
 uv run python phase2_eda/run_phase2.py
