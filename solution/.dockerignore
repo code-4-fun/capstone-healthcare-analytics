@@ -1,6 +1,8 @@
-# Build context is solution/. Keep the images lean - the Phase 5 API image
-# COPYs src/ + the Phase 3 models + the Phase 2 feature frame + phase5_api/;
-# the Phase 6 scheduler image adds phase6_monitoring/ + two phase5_api files.
+# Build context is solution/. Keep the images lean - the Phase 1 bootstrap
+# image COPYs src/ + phase1_sql_analytics/{sql,load_data.py,bootstrap_db.py};
+# the Phase 5 API image COPYs src/ + the Phase 3 models + the Phase 2 feature
+# frame + phase5_api/; the Phase 6 scheduler image adds phase6_monitoring/ +
+# two phase5_api files.
 .venv/
 **/__pycache__/
 **/*.pyc

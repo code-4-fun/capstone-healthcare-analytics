@@ -58,7 +58,7 @@ def apply_ddl() -> None:
     except Exception as exc:  # noqa: BLE001
         raise SystemExit(
             f"Postgres is required for Phase 6 and is unreachable ({exc}).\n"
-            "Start it with:  docker start capstone-project-postgres"
+            "Start it with:  docker compose up -d   (from solution/)"
         ) from exc
     print("    tables ready: prediction_log, drift_report, prediction_override, v_prediction_audit")
 

@@ -1,0 +1,62 @@
+# Self-sufficient local Postgres for Phases 1-3 - a fresh, empty database
+# managed entirely by this repo (no manually-created container required).
+#
+#   docker compose up -d          # start postgres, then bootstrap the DDL once
+#   docker compose logs bootstrap # watch the bootstrap step
+#
+# `.env.example`'s defaults (PGHOST=localhost, PGPORT=5432) already match this
+# container, so no config changes are needed - just:
+#
+#   cp .env.example .env
+#   docker compose up -d
+#   uv run python phase2_eda/run_phase2.py     # Phase 1 is already bootstrapped
+#   uv run python phase3_models/run_phase3.py
+#
+# `bootstrap` applies exactly the Phase 1 DDL (schema, tables, typed load,
+# indexes, views, data-quality checks - see phase1_sql_analytics/README.md)
+# against the raw CSVs in ../objectives/data, then exits. It is idempotent and
+# safe to re-run (`docker compose up bootstrap`); Phase 2/3's own runners also
+# rebuild this layer automatically if it's ever unreachable.
+#
+# For the full Phase 1 pipeline (charts, CSV exports, PHASE1_FINDINGS.md), run
+# `uv run python phase1_sql_analytics/run_phase1.py` locally against this same
+# database - that stays a local `uv run` step, not a container.
+
+name: capstone-solution
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: capstone_hospital_analytics
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - capstone_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d capstone_hospital_analytics"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  bootstrap:
+    build:
+      context: .
+      dockerfile: phase1_sql_analytics/Dockerfile
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGDATABASE: capstone_hospital_analytics
+      CAPSTONE_SCHEMA: capstone_solution
+      CAPSTONE_DATA_DIR: /data
+    volumes:
+      - ../objectives/data:/data:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  capstone_pgdata:

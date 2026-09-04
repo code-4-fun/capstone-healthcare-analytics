@@ -9,6 +9,7 @@ Postgres schema **`capstone_solution`** (inside database
 ```bash
 # from solution/
 cp .env.example .env          # first time only; defaults match the docker Postgres
+docker compose up -d          # starts + bootstraps Postgres (see ../docker-compose.yml)
 uv sync
 uv run python phase1_sql_analytics/run_phase1.py
 ```
@@ -17,6 +18,11 @@ The runner is idempotent — it drops/recreates tables, reloads, and rebuilds
 every view. View extracts land in `output/*.csv`, charts in `output/charts/`,
 and the C-suite write-up in `PHASE1_FINDINGS.md` (findings by theme, each with
 its chart embedded; supporting tables in an appendix).
+
+`docker compose up -d` already applies this phase's DDL via the `bootstrap`
+service (`bootstrap_db.py` — the same `sql/01_schema.sql`.. `05_data_quality.sql`
++ `load_data.py` steps, without the reporting pipeline), so a fresh clone needs
+no externally-set-up Postgres to get here.
 
 ## What gets built
 
