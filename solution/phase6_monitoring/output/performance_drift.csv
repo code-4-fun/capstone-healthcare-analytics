@@ -1,0 +1,2 @@
+operating_threshold,recall_baseline,recall_baseline_window,recall_drift_window,precision_drift_window,recall_breach
+0.19,0.62,0.6220472440944882,0.28342245989304815,0.16158536585365854,True

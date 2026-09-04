@@ -18,6 +18,7 @@ dependencies = [
     "python-dotenv>=1.2.3",
     "pyyaml>=6.0.3",
     "scikit-learn>=1.9.0",
+    "scipy>=1.18.1",
     "shap>=0.52.0",
     "sqlalchemy>=2.0.52",
     "tabulate>=0.10.0",
@@ -35,5 +36,10 @@ packages = ["src/capstone"]
 package = true
 
 [tool.pytest.ini_options]
+# Each phase's suite is run via its own runner (run_phase5.py / run_phase6.py)
+# with an explicit path. They are not combined into one testpaths entry: both
+# suites keep a top-level `conftest.py` with `from conftest import ...` helpers,
+# which collide if collected together. Run one at a time:
+#   uv run pytest phase5_api/tests        uv run pytest phase6_monitoring/tests
 testpaths = ["phase5_api/tests"]
 addopts = "-q"

@@ -1,0 +1,84 @@
+# Phase 6 - the monitoring stack: the prediction API, its Postgres log, the
+# drift scheduler, and a Grafana dashboard over drift_report / prediction_log.
+#
+#   docker compose -f phase6_monitoring/docker-compose.yml up --build
+#
+#   API      -> http://localhost:8000/docs
+#   Grafana  -> http://localhost:3000   (anonymous viewer; "Hospital Drift" dashboard)
+#
+# The scheduler seeds a baseline + a drifted traffic window on first start, then
+# runs the drift job every DRIFT_INTERVAL_SECONDS (120s here for the demo).
+
+name: capstone-phase6
+
+x-pg-env: &pg-env
+  PGHOST: postgres
+  PGPORT: "5432"
+  PGUSER: postgres
+  PGDATABASE: capstone_hospital_analytics
+  CAPSTONE_SCHEMA: capstone_solution
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: capstone_hospital_analytics
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5433:5432"          # 5433 on the host to avoid clashing with a local Postgres
+    volumes:
+      - capstone_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d capstone_hospital_analytics"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ..
+      dockerfile: phase5_api/Dockerfile
+    environment:
+      <<: *pg-env
+      API_LOG_PREDICTIONS: "true"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  scheduler:
+    build:
+      context: ..
+      dockerfile: phase6_monitoring/Dockerfile
+    environment:
+      <<: *pg-env
+      DRIFT_INTERVAL_SECONDS: "120"     # demo cadence; production default is 21600 (6h)
+      DRIFT_WINDOW: drift
+      SEED_ON_START: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_started
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_DEFAULT_THEME: light
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - capstone_grafana:/var/lib/grafana
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  capstone_pgdata:
+  capstone_grafana:

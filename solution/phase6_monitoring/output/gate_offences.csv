@@ -1,0 +1,10 @@
+rule,severity,description,n_offending
+gender_enum,ERROR,"gender outside {M,F}",0
+visit_type_enum,ERROR,"visit_type outside {ER,OPD,ICU}",0
+risk_score_enum,ERROR,"risk_score outside {Low,Medium,High}",0
+city_enum,WARN,city not in the known set,0
+provider_enum,WARN,insurance_provider not in the known set,0
+los_negative,ERROR,length_of_stay_hours < 0,0
+billed_negative,ERROR,billed_amount < 0,12
+age_range,ERROR,"age outside [0, 120]",20
+department_enum,WARN,department not in the known set,30
