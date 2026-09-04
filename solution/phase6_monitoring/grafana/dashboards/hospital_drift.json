@@ -1,0 +1,209 @@
+{
+  "uid": "hospital-drift",
+  "title": "Hospital Drift",
+  "tags": ["capstone", "phase6", "drift"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "refresh": "30s",
+  "time": { "from": "now-15d", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "model",
+        "type": "custom",
+        "query": "A,B",
+        "current": { "text": "B", "value": "B" },
+        "options": [
+          { "text": "A", "value": "A", "selected": false },
+          { "text": "B", "value": "B", "selected": true }
+        ]
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Latest drift-run status (model $model)",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "value", "colorMode": "background" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "OK", "color": "green" }, "1": { "text": "ALERT", "color": "red" } } }
+          ],
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] }
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+          "rawSql": "SELECT CASE WHEN bool_or(alert) THEN 1 ELSE 0 END AS status FROM capstone_solution.drift_report WHERE model = '$model' AND run_id = (SELECT run_id FROM capstone_solution.drift_report WHERE model = '$model' ORDER BY run_ts DESC LIMIT 1)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Alerts in latest run (model $model)",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "fieldConfig": {
+        "defaults": { "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] } }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+          "rawSql": "SELECT count(*) FILTER (WHERE alert) AS alerts FROM capstone_solution.drift_report WHERE model = '$model' AND run_id = (SELECT run_id FROM capstone_solution.drift_report WHERE model = '$model' ORDER BY run_ts DESC LIMIT 1)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Validation-gate fail rate (latest, model $model)",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit", "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 0.01 } ] } }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+          "rawSql": "SELECT value AS fail_rate FROM capstone_solution.drift_report WHERE model = '$model' AND metric_kind = 'gate_fail_rate' ORDER BY run_ts DESC LIMIT 1"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Model B recall on Rejected vs baseline (latest)",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit", "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 0.52 } ] } }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+          "rawSql": "SELECT value AS recall FROM capstone_solution.drift_report WHERE model = 'B' AND metric_kind = 'perf_recall_costly' ORDER BY run_ts DESC LIMIT 1"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Feature PSI over runs (model $model)",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 5 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "lineWidth": 2, "pointSize": 6, "showPoints": "always", "spanNulls": true },
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "transparent", "value": null }, { "color": "orange", "value": 0.1 }, { "color": "red", "value": 0.25 } ] },
+          "custom.thresholdsStyle": { "mode": "line" }
+        }
+      },
+      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] } },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+          "rawSql": "SELECT run_ts AS time, feature AS metric, value FROM capstone_solution.drift_report WHERE metric_kind = 'feature_psi' AND model = '$model' AND value >= 0.05 AND $__timeFilter(run_ts) ORDER BY run_ts"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Prediction-mix PSI over runs (model $model)",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 5 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "lineWidth": 2, "pointSize": 6, "showPoints": "always" },
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 0.2 } ] },
+          "custom.thresholdsStyle": { "mode": "line" }
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+          "rawSql": "SELECT run_ts AS time, 'prediction_psi' AS metric, value FROM capstone_solution.drift_report WHERE metric_kind = 'prediction_psi' AND model = '$model' AND $__timeFilter(run_ts) ORDER BY run_ts"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Model B recall on Rejected vs Phase 4 baseline",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 14 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "custom": { "drawStyle": "line", "lineWidth": 2, "showPoints": "always", "pointSize": 6 } } },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+          "rawSql": "SELECT run_ts AS time, 'recall (window)' AS metric, value FROM capstone_solution.drift_report WHERE metric_kind = 'perf_recall_costly' AND model = 'B' AND $__timeFilter(run_ts) UNION ALL SELECT run_ts AS time, 'baseline' AS metric, reference FROM capstone_solution.drift_report WHERE metric_kind = 'perf_recall_costly' AND model = 'B' AND $__timeFilter(run_ts) ORDER BY time"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Served predictions per hour",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 14 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 60, "lineWidth": 1, "stacking": { "mode": "normal" } } } },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+          "rawSql": "SELECT date_trunc('hour', ts) AS time, predicted_class AS metric, count(*) AS n FROM capstone_solution.prediction_log WHERE model = '$model' AND $__timeFilter(ts) GROUP BY 1, 2 ORDER BY 1"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "table",
+      "title": "Active drift alerts (most recent 50)",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 23 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "capstone_pg" },
+          "rawSql": "SELECT run_ts, model, metric_kind, feature, round(value, 3) AS value, round(reference, 3) AS reference, band FROM capstone_solution.drift_report WHERE alert ORDER BY run_ts DESC, value DESC LIMIT 50"
+        }
+      ]
+    }
+  ]
+}

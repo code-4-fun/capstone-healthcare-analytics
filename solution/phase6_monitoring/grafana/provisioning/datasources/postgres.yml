@@ -1,0 +1,18 @@
+# Phase 6 - the drift dashboard reads Postgres directly. The postgres datasource
+# is built into Grafana (no plugin download), so this works fully offline.
+apiVersion: 1
+
+datasources:
+  - name: Capstone Postgres
+    uid: capstone_pg
+    type: grafana-postgresql-datasource
+    access: proxy
+    url: postgres:5432
+    user: postgres
+    isDefault: true
+    jsonData:
+      database: capstone_hospital_analytics
+      sslmode: disable
+      postgresVersion: 1600
+      timescaledb: false
+    editable: false

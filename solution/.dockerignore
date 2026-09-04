@@ -1,5 +1,6 @@
-# Build context is solution/. Keep the image lean - only src/, the Phase 3
-# model artefacts, the Phase 2 feature frame and phase5_api/ are COPYed in.
+# Build context is solution/. Keep the images lean - the Phase 5 API image
+# COPYs src/ + the Phase 3 models + the Phase 2 feature frame + phase5_api/;
+# the Phase 6 scheduler image adds phase6_monitoring/ + two phase5_api files.
 .venv/
 **/__pycache__/
 **/*.pyc
@@ -8,15 +9,19 @@
 **/.ipynb_checkpoints/
 **/.DS_Store
 
-# other phases' bulky generated outputs (not needed by the API)
+# other phases' bulky generated outputs (not needed by the images)
 phase1_sql_analytics/output/
 phase2_eda/output/
 phase3_models/output/
 phase4_eval/output/
 phase5_api/output/
+phase6_monitoring/output/
 **/*.ipynb
 final_presentation/
 docs/
 
-# ...but the API does need the Phase 2 feature frame (threshold rebuild + tests)
+# ...but the images do need the Phase 2 feature frame (threshold rebuild, drift
+# reference, tests) and the Phase 6 scheduler needs two phase5_api artefacts
 !phase2_eda/output/feature_frame.parquet
+!phase5_api/serving_config.json
+!phase5_api/sql/prediction_log.sql

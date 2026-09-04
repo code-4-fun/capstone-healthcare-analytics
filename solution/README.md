@@ -15,7 +15,7 @@ Full phased plan: **[`docs/PLAN.md`](docs/PLAN.md)**.
 | 3 | Model development (classification) | ✅ built — `phase3_models/` |
 | 4 | Evaluation & explainability | ✅ built — `phase4_eval/` |
 | 5 | Deployment & API (FastAPI) | ✅ built — `phase5_api/` |
-| 6 | Monitoring, drift & governance | planned |
+| 6 | Monitoring, drift & governance | ✅ built — `phase6_monitoring/` |
 | — | Executive presentation | planned |
 
 ## Setup
@@ -131,10 +131,38 @@ exactly (golden regression, 1e-6). Every response echoes `model_version` /
 `feature_spec_version`; every prediction is appended to
 `capstone_solution.prediction_log` — the Phase 6 drift baseline. The Model B
 operating threshold (`P(Rejected) ≥ 0.19`) is re-derived from the Phase 4
-net-recovery sweep into `serving_config.json`. p95 latency ~32 ms (claim
+net-recovery sweep into `serving_config.json`. p95 latency ~22 ms (claim
 outcome) / ~6 ms (visit risk), compute-only. See
 [`phase5_api/README.md`](phase5_api/README.md) and
 [`phase5_api/API.md`](phase5_api/API.md).
+
+## Run Phase 6
+
+```bash
+uv run python phase6_monitoring/run_phase6.py                 # DDL + notebook + drift runs + tests
+docker compose -f phase6_monitoring/docker-compose.yml up --build   # API + Postgres + scheduler + Grafana
+```
+
+Same notebook-first pattern: `phase6.ipynb` is the deliverable, reusable logic
+lives in `src/capstone/monitoring.py`. Phase 6 turns the Phase 5 prediction log
+into a monitored signal — a **request validation gate** (Phase 2 rules reused),
+a **drift job** over `prediction_log` (feature PSI/KS, prediction-mix PSI, and
+performance drift once actual outcomes are joined on the caller's `visit_id`),
+an append-only **`drift_report`** table + **`v_prediction_audit`** trail
+(immutability trigger-enforced), a **scheduler** sidecar and a **Grafana**
+dashboard. The notebook seeds a baseline and a deliberately-drifted traffic
+window to exercise the monitor end-to-end: the baseline window is quiet, the
+drifted window raises alerts on billed amount / department / insurer / age
+drift, a prediction-mix shift, and a ~34-point drop in Model B's recall on
+to-be-rejected claims. Alert rules live in one place
+(`capstone.monitoring.ALERT_RULES`) and are cited by `governance.md`.
+
+Headline: the monitor is quiet on un-perturbed traffic and fires on every
+injected shift, including the commercially material one (Model B recall breach).
+Governance docs: [`governance.md`](phase6_monitoring/governance.md),
+[`retraining_policy.md`](phase6_monitoring/retraining_policy.md),
+[`runbook.md`](phase6_monitoring/runbook.md). See
+[`phase6_monitoring/README.md`](phase6_monitoring/README.md).
 
 ## Reporting standard
 
@@ -155,13 +183,15 @@ src/capstone/data_quality.py reusable data-quality validators
 src/capstone/modeling.py     Phase 3 split / pipelines / training / calibration / persistence
 src/capstone/evaluation.py   Phase 4 metrics / threshold / ablation / SHAP / fairness
 src/capstone/serving.py      Phase 5 serving bundle + request->feature assembly
+src/capstone/monitoring.py   Phase 6 PSI/KS drift, validation gate, drift run
 docs/PLAN.md                 phased build plan + Phase 1 findings
 phase1_sql_analytics/        Phase 1 (built, script-based)
 phase2_eda/                  Phase 2 (built, notebook: phase2.ipynb)
 phase3_models/               Phase 3 (built, notebook: phase3.ipynb)
 phase4_eval/                 Phase 4 (built, notebook: phase4.ipynb)
 phase5_api/                  Phase 5 (built, FastAPI service: app/, Dockerfile, tests/)
-phase6_monitoring/ ...       later phases
+phase6_monitoring/           Phase 6 (built, notebook: phase6.ipynb + drift job, scheduler, Grafana)
+final_presentation/          later phase
 ```
 
 ## Configuration
