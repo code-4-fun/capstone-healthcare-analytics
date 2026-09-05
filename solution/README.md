@@ -16,7 +16,7 @@ Full phased plan: **[`docs/PLAN.md`](docs/PLAN.md)**.
 | 4 | Evaluation & explainability | ✅ built — `phase4_eval/` |
 | 5 | Deployment & API (FastAPI) | ✅ built — `phase5_api/` |
 | 6 | Monitoring, drift & governance | ✅ built — `phase6_monitoring/` |
-| — | Executive presentation | planned |
+| — | Executive presentation | ✅ built — `final_presentation/`, live at [code-4-fun.github.io/capstone-healthcare-analytics](https://code-4-fun.github.io/capstone-healthcare-analytics/) |
 
 ## Setup
 
@@ -176,6 +176,18 @@ Governance docs: [`governance.md`](phase6_monitoring/governance.md),
 [`runbook.md`](phase6_monitoring/runbook.md). See
 [`phase6_monitoring/README.md`](phase6_monitoring/README.md).
 
+## Final Phase — Executive Presentation
+
+**Live: https://code-4-fun.github.io/capstone-healthcare-analytics/**
+
+A single, dependency-free static page in `final_presentation/site/` — the
+problem, the architecture, a phase-by-phase walkthrough with each phase's
+headline chart, the business case in money terms, and the governance story.
+Deployed to GitHub Pages by
+[`.github/workflows/pages.yml`](../.github/workflows/pages.yml) on every push
+to `main`; nothing to run locally, though `open final_presentation/site/index.html`
+works directly. See [`final_presentation/README.md`](final_presentation/README.md).
+
 ## Reporting standard
 
 Every quantitative finding, in every phase, is backed by a chart built with the
@@ -204,8 +216,11 @@ phase3_models/               Phase 3 (built, notebook: phase3.ipynb)
 phase4_eval/                 Phase 4 (built, notebook: phase4.ipynb)
 phase5_api/                  Phase 5 (built, FastAPI service: app/, Dockerfile, tests/)
 phase6_monitoring/           Phase 6 (built, notebook: phase6.ipynb + drift job, scheduler, Grafana)
-final_presentation/          later phase
+final_presentation/          Final Phase (built, static site: site/index.html, GH Pages deploy)
 ```
+
+`.github/workflows/pages.yml` (repo root) deploys `final_presentation/site/` to
+GitHub Pages on every push to `main`.
 
 ## Configuration
 

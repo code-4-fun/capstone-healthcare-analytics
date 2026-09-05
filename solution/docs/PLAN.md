@@ -287,22 +287,33 @@ reviewed ✓.
 
 ---
 
-### Final Phase — Executive Business Presentation
+### Final Phase — Executive Business Presentation  *(BUILT — see `final_presentation/`)*
 
 **Goal:** translate the platform into leadership decisions.
 
-Deck covering: the operational/financial problem, end-to-end architecture and
-data flow, headline SQL + EDA insights, model performance *in money and risk
+Covers: the operational/financial problem, end-to-end architecture and data
+flow, headline SQL + EDA insights, model performance *in money and risk
 terms*, revenue-optimisation potential (leakage recoverable), and the
-deployment / scaling / risk-management plan.
+governance / deployment story — as a single-page site rather than a slide
+deck, so it stays live, linkable, and always sourced from each phase's own
+reviewed findings rather than a separately-maintained deck.
 
-**Deliverable:** `final_presentation/` — slides + one-page executive brief +
-architecture diagram.
+**Deliverable:** `final_presentation/site/` — a static, dependency-free
+HTML/CSS page (house style reused from `capstone.viz`'s palette), deployed to
+**GitHub Pages** by `.github/workflows/pages.yml` on every push to `main`.
+Live at https://code-4-fun.github.io/capstone-healthcare-analytics/.
+
+**Exit criteria:** every section backed by a chart already produced and
+verified in its source phase (no new analysis here) ✓; architecture, problem,
+results, business case and governance all covered on one page ✓; deploys
+automatically from `main`, no manual publish step ✓.
 
 ## 5. Repository layout
 
 ```
 capstone-healthcare-analytics/     # git repo root
+├── README.md                      # objective + repo navigation + GH Pages link
+├── .github/workflows/pages.yml    # deploys final_presentation/site/ to GitHub Pages
 ├── objectives/                    # assignment brief + raw data (given)
 └── solution/                      # all solution work (our root)
     ├── pyproject.toml / uv.lock    # uv-managed environment
@@ -321,7 +332,9 @@ capstone-healthcare-analytics/     # git repo root
     ├── phase4_eval/
     ├── phase5_api/
     ├── phase6_monitoring/
-    └── final_presentation/
+    └── final_presentation/         # BUILT
+        ├── site/index.html  site/assets/{style.css,charts/*.png}
+        └── README.md
 ```
 
 ## 6. Cross-cutting conventions
