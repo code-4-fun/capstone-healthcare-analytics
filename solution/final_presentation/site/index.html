@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hospital Operations &amp; Revenue Risk Intelligence Platform</title>
+<meta name="description" content="Executive walkthrough of a six-phase capstone: a trusted SQL analytics layer, EDA, two calibrated classifiers, a served API and drift-monitored governance for a multi-city hospital network.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topnav">
+  <div class="wrap">
+    <a class="brand" href="#top">HOSPITAL OPS &amp; REVENUE RISK PLATFORM</a>
+    <nav>
+      <a href="#problem">Problem</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#phases">Phases</a>
+      <a href="#impact">Impact</a>
+      <a href="#governance">Governance</a>
+      <a href="#status">Status</a>
+      <a href="https://github.com/code-4-fun/capstone-healthcare-analytics">Repository ↗</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Capstone · Executive Presentation</span>
+    <h1>A trusted data foundation, two decision models, and a governed platform for one hospital network.</h1>
+    <p class="lede">
+      A multi-specialty, multi-city network was losing money to blind patient
+      flow, silent revenue leakage, and lagging reports. This platform turns
+      one calendar year of visit and claims data into a queryable analytics
+      layer, a pre-submission claim-outcome model with a documented business
+      case, a served API, and a drift-monitored, governed deployment —
+      end to end, six phases, one cohesive system.
+    </p>
+    <div class="cta">
+      <a class="btn btn-primary" href="#phases">Walk through the platform</a>
+      <a class="btn btn-secondary" href="https://github.com/code-4-fun/capstone-healthcare-analytics/blob/main/solution/docs/PLAN.md">Read the full plan ↗</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="n bad">17.6%</div><div class="l">of billed revenue lost to denials (₹91.8M)</div></div>
+      <div class="stat"><div class="n neutral">57.9%</div><div class="l">revenue realization, billed → collected</div></div>
+      <div class="stat"><div class="n good">62%</div><div class="l">recall on Rejected claims at the deployed operating threshold</div></div>
+      <div class="stat"><div class="n neutral">₹15L/mo</div><div class="l">recoverable denial leakage at the chosen threshold</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="problem">
+  <div class="wrap">
+    <p class="kicker">The business problem</p>
+    <h2>Three coupled failures, one connected fix.</h2>
+    <p class="lead">Measured directly from the network's own 2025 data — 5,000 patients, 25,000 visits, 25,000 claims across departments, providers and insurers.</p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="num">01</div>
+        <h4>Patient-flow blindness</h4>
+        <p>No forward view of where demand, acuity and length-of-stay pressure will land, so staffing and bed planning stay reactive instead of planned.</p>
+      </div>
+      <div class="problem-card">
+        <div class="num">02</div>
+        <h4>Revenue leakage</h4>
+        <p>Insurance claims are rejected or under-approved after the fact — 17.6% of billed value lost to denials, another 24.5% sitting in pending limbo.</p>
+      </div>
+      <div class="problem-card">
+        <div class="num">03</div>
+        <h4>No predictive layer</h4>
+        <p>Decisions are made on lagging reports, not on risk-scored, forward-looking signals a claims team can act on before submission.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="architecture">
+  <div class="wrap">
+    <p class="kicker">How the platform fits together</p>
+    <h2>Each phase produces the artefact the next one consumes.</h2>
+    <p class="lead">One pipeline, six phases, no hand-offs outside the repo — the same Postgres schema, feature catalogue and leakage register run from raw CSV to a served, monitored prediction.</p>
+    <div class="arch">
+      <svg viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Six-phase architecture: SQL analytics feeds EDA, which feeds modelling, which feeds evaluation, which feeds the API, which feeds monitoring, which feeds governance and the executive view.">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#8a8985"/>
+          </marker>
+        </defs>
+        <!-- connectors -->
+        <line x1="185" y1="150" x2="215" y2="150" stroke="#8a8985" stroke-width="1.6" marker-end="url(#arrow)"/>
+        <line x1="385" y1="150" x2="415" y2="150" stroke="#8a8985" stroke-width="1.6" marker-end="url(#arrow)"/>
+        <line x1="585" y1="150" x2="615" y2="150" stroke="#8a8985" stroke-width="1.6" marker-end="url(#arrow)"/>
+        <line x1="785" y1="150" x2="815" y2="150" stroke="#8a8985" stroke-width="1.6" marker-end="url(#arrow)"/>
+        <line x1="985" y1="150" x2="1015" y2="150" stroke="#8a8985" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+        <!-- Phase 1 -->
+        <g>
+          <rect x="15" y="105" width="170" height="90" rx="10" fill="#fff" stroke="#2a78d6" stroke-width="1.6"/>
+          <text x="100" y="132" text-anchor="middle" font-size="12" font-weight="700" fill="#2a78d6">PHASE 1</text>
+          <text x="100" y="152" text-anchor="middle" font-size="13" fill="#0b0b0b">SQL Analytics</text>
+          <text x="100" y="168" text-anchor="middle" font-size="11" fill="#8a8985">Postgres · 10 BI views</text>
+        </g>
+        <!-- Phase 2 -->
+        <g>
+          <rect x="215" y="105" width="170" height="90" rx="10" fill="#fff" stroke="#eb6834" stroke-width="1.6"/>
+          <text x="300" y="132" text-anchor="middle" font-size="12" font-weight="700" fill="#eb6834">PHASE 2</text>
+          <text x="300" y="152" text-anchor="middle" font-size="13" fill="#0b0b0b">EDA &amp; Data Quality</text>
+          <text x="300" y="168" text-anchor="middle" font-size="11" fill="#8a8985">Feature &amp; leakage register</text>
+        </g>
+        <!-- Phase 3 -->
+        <g>
+          <rect x="415" y="105" width="170" height="90" rx="10" fill="#fff" stroke="#1baf7a" stroke-width="1.6"/>
+          <text x="500" y="132" text-anchor="middle" font-size="12" font-weight="700" fill="#1baf7a">PHASE 3</text>
+          <text x="500" y="152" text-anchor="middle" font-size="13" fill="#0b0b0b">Modelling</text>
+          <text x="500" y="168" text-anchor="middle" font-size="11" fill="#8a8985">Model A + Model B</text>
+        </g>
+        <!-- Phase 4 -->
+        <g>
+          <rect x="615" y="105" width="170" height="90" rx="10" fill="#fff" stroke="#eda100" stroke-width="1.6"/>
+          <text x="700" y="132" text-anchor="middle" font-size="12" font-weight="700" fill="#c07f00">PHASE 4</text>
+          <text x="700" y="152" text-anchor="middle" font-size="13" fill="#0b0b0b">Evaluation</text>
+          <text x="700" y="168" text-anchor="middle" font-size="11" fill="#8a8985">Threshold · fairness · cards</text>
+        </g>
+        <!-- Phase 5 -->
+        <g>
+          <rect x="815" y="105" width="170" height="90" rx="10" fill="#fff" stroke="#4a3aa7" stroke-width="1.6"/>
+          <text x="900" y="132" text-anchor="middle" font-size="12" font-weight="700" fill="#4a3aa7">PHASE 5</text>
+          <text x="900" y="152" text-anchor="middle" font-size="13" fill="#0b0b0b">Deployment</text>
+          <text x="900" y="168" text-anchor="middle" font-size="11" fill="#8a8985">FastAPI · prediction log</text>
+        </g>
+        <!-- Phase 6 -->
+        <g>
+          <rect x="1015" y="105" width="170" height="90" rx="10" fill="#fff" stroke="#e34948" stroke-width="1.6"/>
+          <text x="1100" y="132" text-anchor="middle" font-size="12" font-weight="700" fill="#e34948">PHASE 6</text>
+          <text x="1100" y="152" text-anchor="middle" font-size="13" fill="#0b0b0b">Monitoring</text>
+          <text x="1100" y="168" text-anchor="middle" font-size="11" fill="#8a8985">Drift · governance · audit</text>
+        </g>
+
+        <!-- feedback loop -->
+        <path d="M1100,195 C1100,255 100,255 100,195" fill="none" stroke="#b7b7b3" stroke-width="1.4" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
+        <text x="600" y="278" text-anchor="middle" font-size="11.5" fill="#8a8985">Retraining triggers (drift, quarterly cadence) feed back into Phase 2 → 3 → 4</text>
+      </svg>
+      <p class="arch-caption">Raw CSVs → typed Postgres tables → curated feature frame → two calibrated classifiers → an evaluated, priced decision → a served, logged API → a monitored, governed production loop.</p>
+    </div>
+  </div>
+</section>
+
+<section id="phases" class="flush">
+  <div class="wrap">
+    <p class="kicker">The platform, phase by phase</p>
+    <h2>Six phases, each with its own notebook, findings report, and chart-backed evidence.</h2>
+  </div>
+
+  <div class="wrap">
+    <div class="phase">
+      <div class="phase-copy">
+        <span class="badge">1</span>
+        <h3>SQL Analytics Layer</h3>
+        <div class="tag">Postgres · typed schema · 10 BI views · data-quality report</div>
+        <p>Three raw CSVs become a trusted, indexed <code>capstone_solution</code> schema — PKs, FKs and CHECK constraints enforced in-database, ten business-intelligence views, and a 12-check automated data-quality report. This is the spine every later phase reads from.</p>
+        <div class="phase-metric"><b>521.8M billed → 302.3M collected</b> — 57.9% realization; rejections peak at 22.7% in the 15k–30k billed band, non-monotonic in amount.</div>
+        <div class="phase-links">
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/tree/main/solution/phase1_sql_analytics">Code ↗</a>
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/blob/main/solution/phase1_sql_analytics/PHASE1_FINDINGS.md">Findings report ↗</a>
+        </div>
+      </div>
+      <div class="phase-fig">
+        <img src="assets/charts/p1_revenue_waterfall.png" alt="Revenue waterfall from billed to collected, showing pending and leakage amounts" loading="lazy">
+        <div class="cap">Revenue waterfall: billed → approved → collected, with pending and denial leakage broken out.</div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-copy">
+        <span class="badge">2</span>
+        <h3>EDA &amp; Data Quality</h3>
+        <div class="tag">Profiling · leakage register · feature catalogue</div>
+        <p>Turns the analytics layer into modelling readiness: every candidate feature is profiled for signal against the permuted-target noise floor, four data-quality findings get a written handling policy, and the leakage register that governs Phase 3 is written down field by field.</p>
+        <div class="phase-metric"><b>Model A has no learnable signal</b> — every feature sits below the noise floor. <b>Model B is a billed-amount model</b>, and the mid billed-band carries 70% of the 91.8M denial leakage.</div>
+        <div class="phase-links">
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/tree/main/solution/phase2_eda">Code ↗</a>
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/blob/main/solution/phase2_eda/phase2.ipynb">Notebook ↗</a>
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/blob/main/solution/phase2_eda/PHASE2_FINDINGS.md">Findings report ↗</a>
+        </div>
+      </div>
+      <div class="phase-fig">
+        <img src="assets/charts/p2_denial_leakage_concentration.png" alt="Denial leakage concentrated in the mid billed-amount band" loading="lazy">
+        <div class="cap">Denial leakage is concentrated in the mid billed-amount band, not spread evenly across claim size.</div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-copy">
+        <span class="badge">3</span>
+        <h3>Model Development</h3>
+        <div class="tag">Two time-validated classifiers · calibrated</div>
+        <p>Model A (visit risk) and Model B (pre-submission claim outcome) are both split on <code>visit_date</code> — 9 months train, 1 validate, 2 test, no shuffle — and calibrated on the validation month. Only the learned candidate that clears both the majority baseline and the domain simple-rule ships; otherwise the baseline itself ships as a monitor.</p>
+        <div class="phase-metric"><b>Model B recall on Rejected: 66%</b> (vs 0% majority baseline, 62% simple rule) on the held-out test window.</div>
+        <div class="phase-links">
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/tree/main/solution/phase3_models">Code ↗</a>
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/blob/main/solution/phase3_models/phase3.ipynb">Notebook ↗</a>
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/blob/main/solution/phase3_models/PHASE3_FINDINGS.md">Findings report ↗</a>
+        </div>
+      </div>
+      <div class="phase-fig">
+        <img src="assets/charts/p3_costly_class_recall.png" alt="Recall on the costly class for Model B versus baselines" loading="lazy">
+        <div class="cap">Recall on the costly class (Rejected) — the model versus the majority and simple-rule baselines.</div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-copy">
+        <span class="badge">4</span>
+        <h3>Evaluation &amp; Explainability</h3>
+        <div class="tag">Threshold, SHAP, leakage ablation, fairness, model cards</div>
+        <p>Turns Model B into an operating decision: the calibrated <code>P(Rejected)</code> threshold is chosen on validation to maximise net recoverable leakage, verified clean of leakage by ablation (injecting a forbidden field spikes accuracy to 0.96 — the shipped model sits at the clean row), and checked for fairness across gender, age band, city and insurer.</p>
+        <div class="phase-metric"><b>Operating threshold P(Rejected) ≥ 0.19</b> → ~850 review alerts/month, ~₹15L/month recoverable denial leakage (~₹5L net of review cost). No protected attribute fails the four-fifths parity test.</div>
+        <div class="phase-links">
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/tree/main/solution/phase4_eval">Code ↗</a>
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/blob/main/solution/phase4_eval/phase4.ipynb">Notebook ↗</a>
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/blob/main/solution/phase4_eval/model_card_B.md">Model card B ↗</a>
+        </div>
+      </div>
+      <div class="phase-fig">
+        <img src="assets/charts/p4_net_recovery_b.png" alt="Net recoverable leakage by classification threshold, with the chosen operating point marked" loading="lazy">
+        <div class="cap">Net recoverable leakage across candidate thresholds — the operating point maximises the business return.</div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-copy">
+        <span class="badge">5</span>
+        <h3>Deployment &amp; API</h3>
+        <div class="tag">FastAPI · versioned artefacts · prediction log</div>
+        <p>Serves the persisted Phase 3 models behind two endpoints, strict Pydantic validation bound to the Phase 1 domain constraints, and a Postgres prediction log that becomes Phase 6's drift baseline. Every response echoes its model, feature-spec and threshold versions.</p>
+        <div class="phase-metric"><b>Two endpoints in production shape</b> — <code>/predict/claim-outcome</code> (review vs submit) and <code>/predict/visit-risk</code> (a base-rate monitor, not a per-visit decision), plus <code>/model-info</code> and <code>/health</code>.</div>
+        <div class="phase-links">
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/tree/main/solution/phase5_api">Code ↗</a>
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/blob/main/solution/phase5_api/API.md">API reference ↗</a>
+        </div>
+      </div>
+      <div class="phase-fig">
+        <img src="assets/charts/p5_latency.png" alt="API prediction latency distribution" loading="lazy">
+        <div class="cap">Served prediction latency — both endpoints benchmarked as part of every build.</div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-copy">
+        <span class="badge">6</span>
+        <h3>Monitoring, Drift &amp; Governance</h3>
+        <div class="tag">PSI/KS drift · append-only audit · Grafana · governance docs</div>
+        <p>Watches the prediction log a real deployment would generate: a request-validation gate, feature/prediction/performance drift against the Phase 3 training reference, an append-only <code>drift_report</code> and audit trail enforced by a database trigger, a Grafana dashboard, and the governance, retraining-policy and incident-runbook documents.</p>
+        <div class="phase-metric"><b>Drift job proven end to end</b> — baseline traffic stays OK; injected drift trips feature-PSI alerts on billed amount, department and age, plus a ~34-point drop in Model B's recall on Rejected.</div>
+        <div class="phase-links">
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/tree/main/solution/phase6_monitoring">Code ↗</a>
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/blob/main/solution/phase6_monitoring/phase6.ipynb">Notebook ↗</a>
+          <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/blob/main/solution/phase6_monitoring/governance.md">Governance ↗</a>
+        </div>
+      </div>
+      <div class="phase-fig">
+        <img src="assets/charts/p6_feature_psi_drift.png" alt="Feature PSI crossing the significant-drift threshold on the injected-drift traffic window" loading="lazy">
+        <div class="cap">Feature PSI on the drifted traffic window — billed amount, department and age cross the significant-drift line.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="impact">
+  <div class="wrap">
+    <p class="kicker">What this means for leadership</p>
+    <h2>Business impact, in money and risk terms.</h2>
+    <ul class="impact-list">
+      <li><span class="ic">＄</span><div><b>~₹15L/month in recoverable denial leakage</b><br><span>at the chosen operating threshold, against a total 91.8M annual denial pool — roughly ~₹5L/month net of the review team's added workload.</span></div></li>
+      <li><span class="ic">◔</span><div><b>~850 claims/month routed to review</b><br><span>a manageable pre-submission triage queue rather than a blanket policy change, sized directly from the validation-month sweep.</span></div></li>
+      <li><span class="ic">✓</span><div><b>Denial drivers are not the obvious ones</b><br><span>rejection rate is non-monotonic in billed amount and nearly flat across department, provider and risk band — the mid billed-band is the lever, not any one team.</span></div></li>
+      <li><span class="ic">△</span><div><b>Visit-risk scoring is not yet a usable signal</b><br><span>Model A sits at the class-prior ceiling on this year's data; shipped as a risk-mix monitor, not a staffing decision — an honest ceiling, not a hidden one.</span></div></li>
+    </ul>
+  </div>
+</section>
+
+<section id="governance">
+  <div class="wrap">
+    <p class="kicker">Responsible deployment</p>
+    <h2>Governed the way a healthcare decision system should be.</h2>
+    <ul class="gov-list">
+      <li><span class="ic">🔒</span><div><b>Leakage discipline, enforced in code</b><br><span><code>visit_date</code> is the only temporal key; no post-outcome field can reach either model, checked by <code>leakage_violations()</code> before every fit and proven by ablation at evaluation time.</span></div></li>
+      <li><span class="ic">⚖️</span><div><b>Fairness checked at the operating threshold</b><br><span>selection rate, recall, FPR and calibration gap measured per gender, age band, city and insurer against a four-fifths parity bar; gaps are monitored, not silently accepted.</span></div></li>
+      <li><span class="ic">📜</span><div><b>Append-only audit trail</b><br><span><code>prediction_log</code>, <code>drift_report</code> and <code>prediction_override</code> reject <code>UPDATE</code>/<code>DELETE</code> at the database level — every prediction and every manual override is permanent.</span></div></li>
+      <li><span class="ic">📈</span><div><b>Drift-triggered retraining policy</b><br><span>written triggers (sustained PSI &gt; 0.25, recall drop &gt; 10pts, quarterly cadence), a shadow-then-promote procedure, and a one-config rollback via <code>serving_config.json</code>.</span></div></li>
+    </ul>
+  </div>
+</section>
+
+<section id="status" class="flush">
+  <div class="wrap">
+    <p class="kicker">Build status</p>
+    <h2>All six phases built, verified, and reproducible from a clean checkout.</h2>
+    <table class="status">
+      <thead><tr><th>Phase</th><th>Scope</th><th>State</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>SQL analytics layer (Postgres)</td><td class="ok">Built</td></tr>
+        <tr><td>2</td><td>EDA &amp; data quality</td><td class="ok">Built</td></tr>
+        <tr><td>3</td><td>Model development (classification)</td><td class="ok">Built</td></tr>
+        <tr><td>4</td><td>Evaluation &amp; explainability</td><td class="ok">Built</td></tr>
+        <tr><td>5</td><td>Deployment &amp; API (FastAPI)</td><td class="ok">Built</td></tr>
+        <tr><td>6</td><td>Monitoring, drift &amp; governance</td><td class="ok">Built</td></tr>
+        <tr><td>—</td><td>Executive presentation (this site)</td><td class="ok">Built</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:16px; font-size:14px;">One command reproduces the whole stack from a clean checkout — <code>docker compose up -d</code>, then each phase's <code>run_phase&lt;n&gt;.py</code>. See the <a href="https://github.com/code-4-fun/capstone-healthcare-analytics#readme">repository README ↗</a> for the full walkthrough.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Hospital Operations &amp; Revenue Risk Intelligence Platform — a capstone solution.</p>
+    <p><a href="https://github.com/code-4-fun/capstone-healthcare-analytics">Source on GitHub ↗</a> · <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/blob/main/solution/docs/PLAN.md">Full phased plan ↗</a> · <a href="https://github.com/code-4-fun/capstone-healthcare-analytics/blob/main/solution/docs/CAPSTONE_OUTCOMES.md">Capstone brief outcomes ↗</a></p>
+  </div>
+</footer>
+
+</body>
+</html>

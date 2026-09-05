@@ -1,0 +1,37 @@
+name: Deploy executive presentation to GitHub Pages
+
+# Publishes solution/final_presentation/site as-is - a static, dependency-free
+# page (see solution/final_presentation/README.md) - so there is nothing to
+# build; this just uploads the folder and hands it to GitHub Pages.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "solution/final_presentation/site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: solution/final_presentation/site
+      - id: deployment
+        uses: actions/deploy-pages@v4
