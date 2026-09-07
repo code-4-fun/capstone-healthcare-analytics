@@ -294,19 +294,26 @@ reviewed ✓.
 Covers: the operational/financial problem, end-to-end architecture and data
 flow, headline SQL + EDA insights, model performance *in money and risk
 terms*, revenue-optimisation potential (leakage recoverable), and the
-governance / deployment story — as a single-page site rather than a slide
-deck, so it stays live, linkable, and always sourced from each phase's own
-reviewed findings rather than a separately-maintained deck.
+governance / deployment story — primarily as a single-page site so it stays
+live, linkable, and always sourced from each phase's own reviewed findings,
+plus a companion slide deck built from the same content for settings (a
+leadership meeting, an offline walkthrough) where a site link isn't practical.
 
 **Deliverable:** `final_presentation/site/` — a static, dependency-free
 HTML/CSS page (house style reused from `capstone.viz`'s palette), deployed to
 **GitHub Pages** by `.github/workflows/pages.yml` on every push to `main`.
-Live at https://code-4-fun.github.io/capstone-healthcare-analytics/.
+Live at https://code-4-fun.github.io/capstone-healthcare-analytics/. Also
+`final_presentation/site/Hospital_Ops_Revenue_Risk_Platform.pptx` — a
+15-slide deck covering the same problem, architecture, phase-by-phase
+results, business impact, and governance story, reusing the site's own
+chart images; deployed alongside the page and downloadable from its top
+nav ("Slide Deck ⇩").
 
 **Exit criteria:** every section backed by a chart already produced and
 verified in its source phase (no new analysis here) ✓; architecture, problem,
 results, business case and governance all covered on one page ✓; deploys
-automatically from `main`, no manual publish step ✓.
+automatically from `main`, no manual publish step ✓; companion slide deck
+covers the same required agenda ✓.
 
 ## 5. Repository layout
 
